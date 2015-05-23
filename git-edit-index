@@ -1,0 +1,234 @@
+#!/usr/bin/env python
+#
+# A git command that opens an editor to stage or unstage files.
+#
+# Home page:
+#
+#    https://github.com/s3rvac/git-edit-index
+#
+# License:
+#
+#    The MIT License (MIT)
+#
+#    Copyright (c) 2015 Petr Zemek <s3rvac@gmail.com> and contributors.
+#
+#    Permission is hereby granted, free of charge, to any person obtaining a
+#    copy of this software and associated documentation files (the "Software"),
+#    to deal in the Software without restriction, including without limitation
+#    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+#    and/or sell copies of the Software, and to permit persons to whom the
+#    Software is furnished to do so, subject to the following conditions:
+#
+#    The above copyright notice and this permission notice shall be included in
+#    all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+#    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+#    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+#    DEALINGS IN THE SOFTWARE.
+#
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+
+class Index(list):
+    """Representation of a git index.
+
+    It is represented as a list of index entries.
+    """
+
+    def status_of(self, file):
+        """Returns the status of the given file."""
+        for entry in self:
+            if entry.file == file:
+                return entry.status
+        return None
+
+    @classmethod
+    def from_text(cls, text, line_sep='\n'):
+        """Creates an index from the given text."""
+        index = cls()
+        for line in text.split(line_sep):
+            entry = IndexEntry.from_line(line)
+            if entry is not None:
+                index.append(entry)
+        return index
+
+    def __str__(self):
+        return '\n'.join(str(entry) for entry in self)
+
+
+class IndexEntry(object):
+    """Representation of an entry in the git index."""
+
+    def __init__(self, status, file):
+        self.status = status
+        self.file = file
+
+    @classmethod
+    def from_line(cls, line):
+        """Returns an index entry from the given line of text."""
+        # Format (the spaces before and after 'M' are relevant, see `man
+        # git-status` for more info):
+        #
+        #     git format | our format | meaning
+        #     ----------------------------------------
+        #     M  FILE    | A FILE     | added file
+        #      M FILE    | M FILE     | modified file
+        #     ?? FILE    | ? FILE     | untracked file
+        #
+        m = re.match(r'(.{2} ?)(.+)', line)
+        if m is None:
+            return None
+
+        status, file = m.groups()
+        status = status.upper()
+        if re.match(r'(M  |A)', status):
+            return cls('A', file)
+        elif re.match(r'( M|M)', status):
+            return cls('M', file)
+        elif re.match(r'\?', status):
+            return cls('?', file)
+
+        return None
+
+    def __str__(self):
+        return '{} {}'.format(self.status, self.file)
+
+
+def current_index():
+    """Returns the current index of the git repository."""
+    return Index.from_text(git_status(), line_sep='\0')
+
+
+def git_status():
+    """Returns the current status of the git repository as text, where
+    individual lines are separated by the null byte.
+    """
+    return subprocess.check_output(
+        # Arguments --porcelain and -z are needed to make the output
+        # parsing-friendly. They (1) cause paths to be shown relatively from
+        # the repository's root (thus disregarding user's preferences), (2) use
+        # the null byte to separate lines instead of LF, and (3) prevent
+        # formatting of special characters. See `main git-status` for more
+        # details.
+        ['git', 'status', '--porcelain', '-z'],
+        universal_newlines=True
+    )
+
+
+def edit_index(index):
+    """Edits the given index by showing it to the user in an editor and returns
+    the edited version.
+
+    The original index is not modified.
+    """
+    # We need to use a temporary directory to store the current index and show
+    # it to the user in an editor.
+    with tempfile.NamedTemporaryFile(mode='r+', prefix='git-edit-index-') as f:
+        f.write(str(index))
+        f.flush()
+        f.seek(0)
+        subprocess.call(editor_cmd() + [f.name])
+        return Index.from_text(f.read(), line_sep='\n')
+
+
+def editor_cmd_from_git():
+    """Returns a command to start an editor based on the git's configuration.
+    """
+    editor = subprocess.check_output(['git', 'config', 'core.editor'])
+    return editor.split() if editor else None
+
+
+def editor_cmd_from_env():
+    """Returns a command to start an editor based on the environment."""
+    try:
+        return os.environ['EDITOR'].split()
+    except KeyError:
+        raise RuntimeError(
+            "No editor found. Either set 'core.editor' in git "
+            "or specify the 'EDITOR' environment variable."
+        )
+
+
+def editor_cmd():
+    """Returns a command to start an editor."""
+    editor_cmd = editor_cmd_from_git()
+    if editor_cmd is not None:
+        return editor_cmd
+
+    return editor_cmd_from_env()
+
+
+def reflect_index_changes(orig_index, new_index):
+    """Reflects changes in the given index."""
+    for entry in new_index:
+        if status_has_changed(orig_index, new_index, entry.file):
+            reflect_index_change(entry)
+
+
+def status_has_changed(orig_index, new_index, file):
+    """Checks if the status of the given file has changed."""
+    return new_index.status_of(file) != orig_index.status_of(file)
+
+
+def reflect_index_change(entry):
+    """Reflects the change of the given entry.
+
+    This function assumes that the status of the given entry has changed.
+    """
+    if entry.status == 'A':
+        perform_git_action('add', entry.file)
+    elif entry.status == 'M':
+        perform_git_action('reset', entry.file)
+    elif entry.status == '?':
+        perform_git_action(['rm', '--cached'], entry.file)
+
+
+def perform_git_action(action, file):
+    """Performs the given git action over the given file."""
+    if isinstance(action, str):
+        action = [action]
+    # We need to use a full path to the file because `git status --porcelain`
+    # shows paths relative to the repository root.
+    file = os.path.join(repository_path(), file)
+    subprocess.call(['git'] + action + [file], stdout=subprocess.PIPE)
+
+
+def repository_path():
+    """Returns a path to the top-level directory of the repository.
+    """
+    path = subprocess.check_output(
+        ['git', 'rev-parse', '--show-toplevel'],
+        universal_newlines=True
+    )
+    return path.strip()
+
+
+def parse_args(argv):
+    """Parses the given argument list."""
+    parser = argparse.ArgumentParser(
+        description=("""
+            Opens an editor to stage or unstage files in a git repository.
+        """)
+    )
+    parser.parse_args(argv)
+
+
+def main():
+    parse_args(sys.argv[1:])
+    orig_index = current_index()
+    new_index = edit_index(orig_index)
+    reflect_index_changes(orig_index, new_index)
+
+
+if __name__ == '__main__':
+    main()
