@@ -144,7 +144,10 @@ def edit_index(index):
 def editor_cmd_from_git():
     """Returns a command to start an editor based on the git's configuration.
     """
-    editor = subprocess.check_output(['git', 'config', 'core.editor'])
+    editor = subprocess.check_output(
+        ['git', 'config', 'core.editor'],
+        universal_newlines=True
+    )
     return editor.split() if editor else None
 
 
