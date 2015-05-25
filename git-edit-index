@@ -47,9 +47,14 @@ class Index(list):
 
     def status_of(self, file):
         """Returns the status of the given file."""
+        entry = self.entry_for(file)
+        return entry.status if entry is not None else None
+
+    def entry_for(self, file):
+        """Returns the entry for the given file."""
         for entry in self:
             if entry.file == file:
-                return entry.status
+                return entry
         return None
 
     @classmethod
@@ -180,9 +185,10 @@ def editor_cmd():
 
 def reflect_index_changes(orig_index, new_index):
     """Reflects changes in the given index."""
-    for entry in new_index:
-        if status_has_changed(orig_index, new_index, entry.file):
-            reflect_index_change(entry)
+    for orig_entry in orig_index:
+        if status_has_changed(orig_index, new_index, orig_entry.file):
+            new_entry = new_index.entry_for(orig_entry.file)
+            reflect_index_change(orig_entry, new_entry)
 
 
 def status_has_changed(orig_index, new_index, file):
@@ -190,17 +196,23 @@ def status_has_changed(orig_index, new_index, file):
     return new_index.status_of(file) != orig_index.status_of(file)
 
 
-def reflect_index_change(entry):
+def reflect_index_change(orig_entry, new_entry):
     """Reflects the change of the given entry.
 
     This function assumes that the status of the given entry has changed.
     """
-    if entry.status == 'A':
-        perform_git_action('add', entry.file)
-    elif entry.status == 'M':
-        perform_git_action('reset', entry.file)
-    elif entry.status == '?':
-        perform_git_action(['rm', '--cached'], entry.file)
+    if new_entry is None:
+        # The file is not present in the new index => revert changes done to
+        # the file since the last commit.
+        if orig_entry.status == 'A':
+            perform_git_action('reset', orig_entry.file)
+        perform_git_action('checkout', orig_entry.file)
+    elif new_entry.status == 'A':
+        perform_git_action('add', new_entry.file)
+    elif new_entry.status == 'M':
+        perform_git_action('reset', new_entry.file)
+    elif new_entry.status == '?':
+        perform_git_action(['rm', '--cached'], new_entry.file)
 
 
 def perform_git_action(action, file):

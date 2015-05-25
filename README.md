@@ -41,6 +41,8 @@ can stage or unstage files from the index simply by changing their status:
 * To unstage a modified file, change its status from `A` to `M`.
 * To add an untracked file, change its status from `?` to `A`.
 * To stop tracking of a file, change its status to `?`.
+* To revert changes done to a file since the last commit, remove the line with
+  the file.
 
 The status is case-insensitive, e.g. both `A` and `a` stage the given file
 (lower-case letters are easier to type).
