@@ -41,7 +41,7 @@ can stage or unstage files from the index simply by changing their status:
 * To unstage a modified file, change its status from `A` to `M`.
 
 The status is case-insensitive, e.g. both `A` and `a` stage the given file
-(lower-case letters are easier to type)
+(lower-case letters are easier to type).
 
 Selecting an Editor
 -------------------
