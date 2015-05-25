@@ -4,6 +4,11 @@ Changelog
 dev
 ---
 
+* -
+
+0.2 (2015-05-25)
+----------------
+
 * FEA: Allow reverting changes done to a file since the last commit by removing
   the line with the file from the editor.
 * FIX: Use `--` before files when running Git commands to prevent confusion
