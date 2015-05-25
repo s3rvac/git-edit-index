@@ -222,7 +222,8 @@ def perform_git_action(action, file):
     # We need to use a full path to the file because `git status --porcelain`
     # shows paths relative to the repository root.
     file = os.path.join(repository_path(), file)
-    subprocess.call(['git'] + action + [file], stdout=subprocess.PIPE)
+    # '--' prevents confusion when the file looks like a branch or tag.
+    subprocess.call(['git'] + action + ['--', file], stdout=subprocess.PIPE)
 
 
 def repository_path():
