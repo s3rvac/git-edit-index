@@ -37,12 +37,17 @@ Usage
 Run `git edit-index` to display an editor with the current index. In it, you
 can stage or unstage files from the index simply by changing their status:
 
-* To stage a modified file, change its status from `M` to `A`.
-* To unstage a modified file, change its status from `A` to `M`.
-* To add an untracked file, change its status from `?` to `A`.
-* To stop tracking of a file, change its status to `?`.
+* To stage a modified file, change its status from `M` to `A`. This runs `git
+  add FILE`.
+* To unstage a modified file, change its status from `A` to `M`. This runs `git
+  reset FILE`.
+* To add an untracked file, change its status from `?` to `A`. This runs `git
+  add FILE`.
+* To stop tracking of a file, change its status to `?`. This runs `git rm
+  --cached FILE`.
 * To revert changes done to a file since the last commit, remove the line with
-  the file.
+  the file. This runs `git checkout FILE` (if the file is staged, it first runs
+  `git reset FILE`).
 
 The status is case-insensitive, e.g. both `A` and `a` stage the given file
 (lower-case letters are easier to type).
