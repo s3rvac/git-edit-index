@@ -45,17 +45,12 @@ class Index(list):
     It is represented as a list of index entries.
     """
 
-    def status_of(self, file):
-        """Returns the status of the given file."""
-        entry = self.entry_for(file)
-        return entry.status if entry is not None else None
-
     def entry_for(self, file):
         """Returns the entry for the given file."""
         for entry in self:
             if entry.file == file:
                 return entry
-        return None
+        return NoIndexEntry(file)
 
     @classmethod
     def from_text(cls, text, line_sep='\n'):
@@ -107,6 +102,19 @@ class IndexEntry(object):
 
     def __str__(self):
         return '{} {}'.format(self.status, self.file)
+
+
+class NoIndexEntry(IndexEntry):
+    """Representation of an entry that does not exist.
+
+    This class utilizes the Null object design pattern.
+    """
+
+    def __init__(self, file):
+        IndexEntry.__init__(self, status=None, file=file)
+
+    def __str__(self):
+        return '- {}'.format(self.file)
 
 
 def current_index():
@@ -185,15 +193,18 @@ def editor_cmd():
 
 def reflect_index_changes(orig_index, new_index):
     """Reflects changes in the given index."""
+    for orig_entry, new_entry in changed_entries(orig_index, new_index):
+        reflect_index_change(orig_entry, new_entry)
+
+
+def changed_entries(orig_index, new_index):
+    """Generates entries that differ in the given indexes as pairs (original
+    entry, new entry).
+    """
     for orig_entry in orig_index:
-        if status_has_changed(orig_index, new_index, orig_entry.file):
-            new_entry = new_index.entry_for(orig_entry.file)
-            reflect_index_change(orig_entry, new_entry)
-
-
-def status_has_changed(orig_index, new_index, file):
-    """Checks if the status of the given file has changed."""
-    return new_index.status_of(file) != orig_index.status_of(file)
+        new_entry = new_index.entry_for(orig_entry.file)
+        if orig_entry.status != new_entry.status:
+            yield orig_entry, new_entry
 
 
 def reflect_index_change(orig_entry, new_entry):
@@ -201,7 +212,7 @@ def reflect_index_change(orig_entry, new_entry):
 
     This function assumes that the status of the given entry has changed.
     """
-    if new_entry is None:
+    if new_entry.status is None:
         # The file is not present in the new index => revert changes done to
         # the file since the last commit.
         if orig_entry.status == 'A':
