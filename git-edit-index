@@ -149,6 +149,8 @@ def editor_cmd_from_git():
             ['git', 'config', 'core.editor'],
             universal_newlines=True
         )
+        # The editor may include parameters (such as 'gvim -f'), so split it to
+        # get a complete command.
         return editor.split()
     except subprocess.CalledProcessError:
         # Either no editor is set (git returns 1 in such a case) or the command
