@@ -30,3 +30,44 @@
 #    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #    DEALINGS IN THE SOFTWARE.
 #
+
+import io
+import unittest
+from unittest import mock
+
+from git_edit_index import parse_args
+
+
+# Do not inherit from unittest.TestCase because WithPatching is a mixin, not a
+# base class for tests.
+class WithPatching:
+    """Mixin for tests that perform patching during their setup."""
+
+    def patch(self, what, with_what):
+        """Patches `what` with `with_what`."""
+        patcher = mock.patch(what, with_what)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+
+class ParseArgsTests(unittest.TestCase, WithPatching):
+    """Tests for `parse_args()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.stdout = io.StringIO()
+        self.patch('sys.stdout', self.stdout)
+
+        self.stderr = io.StringIO()
+        self.patch('sys.stderr', self.stderr)
+
+    def test_prints_help_and_exits_when_requested(self):
+        with self.assertRaises(SystemExit) as cm:
+            parse_args(['git-edit-index', '--help'])
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_prints_error_message_and_exits_when_invalid_parameter_is_given(self):
+        with self.assertRaises(SystemExit) as cm:
+            parse_args(['git-edit-index', '--xyz'])
+        self.assertNotEqual(cm.exception.code, 0)
