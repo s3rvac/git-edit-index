@@ -36,6 +36,7 @@ import unittest
 from unittest import mock
 
 from git_edit_index import parse_args
+from git_edit_index import repository_path
 
 
 # Do not inherit from unittest.TestCase because WithPatching is a mixin, not a
@@ -48,6 +49,30 @@ class WithPatching:
         patcher = mock.patch(what, with_what)
         patcher.start()
         self.addCleanup(patcher.stop)
+
+
+class RepositoryPathTests(unittest.TestCase, WithPatching):
+    """Tests for `repository_path()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+    def test_calls_correct_git_command_and_returns_correct_path(self):
+        REPOSITORY_PATH = '/path/to/repo'
+        self.subprocess.check_output.return_value = '{}\n'.format(
+            REPOSITORY_PATH
+        )
+
+        path = repository_path()
+
+        self.assertEqual(path, REPOSITORY_PATH)
+        self.subprocess.check_output.assert_called_once_with(
+            ['git', 'rev-parse', '--show-toplevel'],
+            universal_newlines=True
+        )
 
 
 class ParseArgsTests(unittest.TestCase, WithPatching):
