@@ -32,9 +32,11 @@
 #
 
 import io
+import subprocess
 import unittest
 from unittest import mock
 
+from git_edit_index import editor_cmd_from_git
 from git_edit_index import parse_args
 from git_edit_index import repository_path
 
@@ -49,6 +51,44 @@ class WithPatching:
         patcher = mock.patch(what, with_what)
         patcher.start()
         self.addCleanup(patcher.stop)
+
+
+class EditorCmdFromGitTests(unittest.TestCase, WithPatching):
+    """Tests for `editor_cmd_from_git()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+    def test_calls_correct_git_command(self):
+        editor_cmd_from_git()
+
+        self.subprocess.check_output.assert_called_once_with(
+            ['git', 'config', 'core.editor'],
+            universal_newlines=True
+        )
+
+    def test_returns_correct_cmd_when_editor_is_set(self):
+        CMD = ['gvim', '-f']
+        self.subprocess.check_output.return_value = '{}\n'.format(
+            ' '.join(CMD)
+        )
+
+        cmd = editor_cmd_from_git()
+
+        self.assertEqual(cmd, CMD)
+
+    def test_returns_none_when_editor_is_not_set(self):
+        self.subprocess.CalledProcessError = subprocess.CalledProcessError
+        self.subprocess.check_output.side_effect = subprocess.CalledProcessError(
+            1, 'git cmd'
+        )
+
+        cmd = editor_cmd_from_git()
+
+        self.assertIsNone(cmd)
 
 
 class RepositoryPathTests(unittest.TestCase, WithPatching):
