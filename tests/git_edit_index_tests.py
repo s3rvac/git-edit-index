@@ -36,6 +36,7 @@ import subprocess
 import unittest
 from unittest import mock
 
+from git_edit_index import editor_cmd
 from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
 from git_edit_index import parse_args
@@ -90,6 +91,44 @@ class EditorCmdFromGitTests(unittest.TestCase, WithPatching):
         cmd = editor_cmd_from_git()
 
         self.assertIsNone(cmd)
+
+
+class EditorCmdTests(unittest.TestCase, WithPatching):
+    """Tests for `editor_cmd()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.editor_cmd_from_git = mock.Mock()
+        self.patch('git_edit_index.editor_cmd_from_git', self.editor_cmd_from_git)
+
+        self.editor_cmd_from_env = mock.Mock()
+        self.patch('git_edit_index.editor_cmd_from_env', self.editor_cmd_from_env)
+
+    def test_returns_editor_cmd_from_git_when_set(self):
+        CMD = ['gvim', '-f']
+        self.editor_cmd_from_git.return_value = CMD
+        self.editor_cmd_from_env.return_value = None
+
+        cmd = editor_cmd()
+
+        self.assertEqual(cmd, CMD)
+
+    def test_returns_editor_cmd_from_env_when_set_and_git_editor_is_not_set(self):
+        CMD = ['gvim', '-f']
+        self.editor_cmd_from_git.return_value = None
+        self.editor_cmd_from_env.return_value = CMD
+
+        cmd = editor_cmd()
+
+        self.assertEqual(cmd, CMD)
+
+    def test_raises_runtime_error_when_no_editor_is_set(self):
+        self.editor_cmd_from_git.return_value = None
+        self.editor_cmd_from_env.return_value = None
+
+        with self.assertRaisesRegex(RuntimeError, 'No editor found\.'):
+            editor_cmd()
 
 
 class EditorCmdFromEndTests(unittest.TestCase, WithPatching):
