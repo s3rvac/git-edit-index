@@ -39,6 +39,7 @@ from unittest import mock
 from git_edit_index import editor_cmd
 from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
+from git_edit_index import git_status
 from git_edit_index import parse_args
 from git_edit_index import repository_path
 
@@ -53,6 +54,28 @@ class WithPatching:
         patcher = mock.patch(what, with_what)
         patcher.start()
         self.addCleanup(patcher.stop)
+
+
+class GitStatusTests(unittest.TestCase, WithPatching):
+    """Tests for `git_status()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+    def test_calls_correct_git_command_and_returns_correct_status(self):
+        STATUS = 'status'
+        self.subprocess.check_output.return_value = STATUS
+
+        status = git_status()
+
+        self.assertEqual(status, STATUS)
+        self.subprocess.check_output.assert_called_once_with(
+            ['git', 'status', '--porcelain', '-z'],
+            universal_newlines=True
+        )
 
 
 class EditorCmdFromGitTests(unittest.TestCase, WithPatching):
