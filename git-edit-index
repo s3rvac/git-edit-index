@@ -176,10 +176,7 @@ def editor_cmd_from_env():
     try:
         return os.environ['EDITOR'].split()
     except KeyError:
-        raise RuntimeError(
-            "No editor found. Either set 'core.editor' in git "
-            "or specify the 'EDITOR' environment variable."
-        )
+        return None
 
 
 def editor_cmd():
@@ -188,7 +185,14 @@ def editor_cmd():
     if editor_cmd is not None:
         return editor_cmd
 
-    return editor_cmd_from_env()
+    editor_cmd = editor_cmd_from_env()
+    if editor_cmd is not None:
+        return editor_cmd
+
+    raise RuntimeError(
+        "No editor found. Either set 'core.editor' in git "
+        "or specify the 'EDITOR' environment variable."
+    )
 
 
 def reflect_index_changes(orig_index, new_index):

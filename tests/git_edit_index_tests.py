@@ -36,6 +36,7 @@ import subprocess
 import unittest
 from unittest import mock
 
+from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
 from git_edit_index import parse_args
 from git_edit_index import repository_path
@@ -87,6 +88,31 @@ class EditorCmdFromGitTests(unittest.TestCase, WithPatching):
         )
 
         cmd = editor_cmd_from_git()
+
+        self.assertIsNone(cmd)
+
+
+class EditorCmdFromEndTests(unittest.TestCase, WithPatching):
+    """Tests for `editor_cmd_from_env()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.os = mock.Mock()
+        self.patch('git_edit_index.os', self.os)
+
+    def test_returns_correct_cmd_when_editor_is_set(self):
+        CMD = ['gvim', '-f']
+        self.os.environ = {'EDITOR': ' '.join(CMD)}
+
+        cmd = editor_cmd_from_env()
+
+        self.assertEqual(cmd, CMD)
+
+    def test_returns_none_when_editor_is_not_set(self):
+        self.os.environ = {}
+
+        cmd = editor_cmd_from_env()
 
         self.assertIsNone(cmd)
 
