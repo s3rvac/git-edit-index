@@ -38,6 +38,7 @@ import unittest
 from unittest import mock
 
 from git_edit_index import IndexEntry
+from git_edit_index import NoIndexEntry
 from git_edit_index import editor_cmd
 from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
@@ -115,6 +116,25 @@ class IndexEntryTests(unittest.TestCase):
         entry = IndexEntry('M', 'file.txt')
 
         self.assertEqual(str(entry), 'M file.txt')
+
+
+class NoIndexEntryTests(unittest.TestCase):
+    """Tests for `NoIndexEntry`."""
+
+    def test_status_is_always_none(self):
+        entry = NoIndexEntry('file.txt')
+
+        self.assertIsNone(entry.status)
+
+    def test_file_returns_correct_value(self):
+        entry = NoIndexEntry('file.txt')
+
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_str_returns_correct_representation(self):
+        entry = NoIndexEntry('file.txt')
+
+        self.assertEqual(str(entry), '- file.txt')
 
 
 class GitStatusTests(unittest.TestCase, WithPatching):
