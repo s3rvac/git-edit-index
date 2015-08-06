@@ -37,6 +37,7 @@ import subprocess
 import unittest
 from unittest import mock
 
+from git_edit_index import Index
 from git_edit_index import IndexEntry
 from git_edit_index import NoIndexEntry
 from git_edit_index import editor_cmd
@@ -59,6 +60,44 @@ class WithPatching:
         patcher = mock.patch(what, with_what)
         patcher.start()
         self.addCleanup(patcher.stop)
+
+
+class IndexTests(unittest.TestCase):
+    """Tests for `Index`."""
+
+    def test_entry_for_returns_no_index_entry_when_there_is_no_entry(self):
+        index = Index()
+
+        self.assertIsInstance(index.entry_for('file.txt'), NoIndexEntry)
+
+    def test_entry_for_returns_correct_entry_when_it_exists(self):
+        entry = IndexEntry('M', 'file1.txt')
+        index = Index([entry])
+
+        self.assertEqual(index.entry_for('file1.txt'), entry)
+
+    def test_from_text_returns_empty_index_when_there_are_no_lines(self):
+        index = Index.from_text('')
+
+        self.assertEqual(len(index), 0)
+
+    def test_from_text_returns_correct_index_when_there_are_lines(self):
+        index = Index.from_text(
+            'M file1.txt\n'
+            '? file2.txt\n'
+        )
+
+        self.assertEqual(len(index), 2)
+        self.assertEqual(index.entry_for('file1.txt').status, 'M')
+        self.assertEqual(index.entry_for('file2.txt').status, '?')
+
+    def test_str_returns_correct_representation(self):
+        index = Index([
+            IndexEntry('M', 'file1.txt'),
+            IndexEntry('?', 'file2.txt')
+        ])
+
+        self.assertEqual(str(index), 'M file1.txt\n? file2.txt')
 
 
 class IndexEntryTests(unittest.TestCase):
