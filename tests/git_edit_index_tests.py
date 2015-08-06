@@ -60,6 +60,63 @@ class WithPatching:
         self.addCleanup(patcher.stop)
 
 
+class IndexEntryTests(unittest.TestCase):
+    """Tests for `IndexEntry`."""
+
+    def test_status_and_file_are_accessible_after_creation(self):
+        entry = IndexEntry('M', 'file.txt')
+
+        self.assertEqual(entry.status, 'M')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_none_for_empty_line(self):
+        self.assertIsNone(IndexEntry.from_line(''))
+
+    def test_from_line_returns_none_for_unknown_status(self):
+        self.assertIsNone(IndexEntry.from_line('# file.txt'))
+
+    def test_from_line_returns_correct_entry_for_added_file_git_format(self):
+        entry = IndexEntry.from_line('M  file.txt')
+
+        self.assertEqual(entry.status, 'A')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_added_file_our_format(self):
+        entry = IndexEntry.from_line('M file.txt')
+
+        self.assertEqual(entry.status, 'M')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_modified_file_git_format(self):
+        entry = IndexEntry.from_line(' M file.txt')
+
+        self.assertEqual(entry.status, 'M')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_modified_file_our_format(self):
+        entry = IndexEntry.from_line('M file.txt')
+
+        self.assertEqual(entry.status, 'M')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_untracked_file_git_format(self):
+        entry = IndexEntry.from_line('?? file.txt')
+
+        self.assertEqual(entry.status, '?')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_untracked_file_our_format(self):
+        entry = IndexEntry.from_line('? file.txt')
+
+        self.assertEqual(entry.status, '?')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_str_returns_correct_representation(self):
+        entry = IndexEntry('M', 'file.txt')
+
+        self.assertEqual(str(entry), 'M file.txt')
+
+
 class GitStatusTests(unittest.TestCase, WithPatching):
     """Tests for `git_status()`."""
 
