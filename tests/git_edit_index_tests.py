@@ -295,7 +295,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
     def test_performs_correct_action_when_modified_file_is_to_be_reset(self):
         orig_entry = IndexEntry('M', 'file.txt')
-        new_entry = IndexEntry(None, 'file.txt')
+        new_entry = NoIndexEntry('file.txt')
 
         reflect_index_change(orig_entry, new_entry)
 
@@ -303,7 +303,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
     def test_performs_correct_actions_when_staged_file_is_to_be_reset(self):
         orig_entry = IndexEntry('A', 'file.txt')
-        new_entry = IndexEntry(None, 'file.txt')
+        new_entry = NoIndexEntry('file.txt')
 
         reflect_index_change(orig_entry, new_entry)
 
