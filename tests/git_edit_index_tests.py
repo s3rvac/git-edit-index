@@ -32,6 +32,7 @@
 #
 
 import io
+import os
 import subprocess
 import unittest
 from unittest import mock
@@ -41,6 +42,7 @@ from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
 from git_edit_index import git_status
 from git_edit_index import parse_args
+from git_edit_index import perform_git_action
 from git_edit_index import repository_path
 
 
@@ -177,6 +179,39 @@ class EditorCmdFromEndTests(unittest.TestCase, WithPatching):
         cmd = editor_cmd_from_env()
 
         self.assertIsNone(cmd)
+
+
+class PerformGitActionTests(unittest.TestCase, WithPatching):
+    """Tests for `perform_git_action()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+        self.repository_path = mock.Mock()
+        self.patch('git_edit_index.repository_path', self.repository_path)
+
+    def test_calls_git_with_proper_arguments_when_action_is_single_command(self):
+        self.repository_path.return_value = '/'
+
+        perform_git_action('add', 'file.txt')
+
+        self.subprocess.call.assert_called_once_with(
+            ['git', 'add', '--', os.path.join('/', 'file.txt')],
+            stdout=self.subprocess.PIPE
+        )
+
+    def test_calls_git_with_proper_arguments_when_action_is_compound_command(self):
+        self.repository_path.return_value = '/'
+
+        perform_git_action(['rm', '--cached'], 'file.txt')
+
+        self.subprocess.call.assert_called_once_with(
+            ['git', 'rm', '--cached', '--', os.path.join('/', 'file.txt')],
+            stdout=self.subprocess.PIPE
+        )
 
 
 class RepositoryPathTests(unittest.TestCase, WithPatching):
