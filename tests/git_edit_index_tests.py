@@ -37,12 +37,14 @@ import subprocess
 import unittest
 from unittest import mock
 
+from git_edit_index import IndexEntry
 from git_edit_index import editor_cmd
 from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
 from git_edit_index import git_status
 from git_edit_index import parse_args
 from git_edit_index import perform_git_action
+from git_edit_index import reflect_index_change
 from git_edit_index import repository_path
 
 
@@ -179,6 +181,68 @@ class EditorCmdFromEndTests(unittest.TestCase, WithPatching):
         cmd = editor_cmd_from_env()
 
         self.assertIsNone(cmd)
+
+
+class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
+    """Tests for `reflect_index_change()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.perform_git_action = mock.Mock()
+        self.patch('git_edit_index.perform_git_action', self.perform_git_action)
+
+    def test_performs_correct_action_when_untracked_file_is_to_be_added(self):
+        orig_entry = IndexEntry('?', 'file.txt')
+        new_entry = IndexEntry('A', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+
+    def test_performs_correct_action_when_modified_file_is_to_be_added(self):
+        orig_entry = IndexEntry('M', 'file.txt')
+        new_entry = IndexEntry('A', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+
+    def test_performs_correct_action_when_staged_file_is_to_be_unstaged(self):
+        orig_entry = IndexEntry('A', 'file.txt')
+        new_entry = IndexEntry('M', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('reset', 'file.txt')
+
+    def test_performs_correct_action_when_modified_file_is_to_be_reset(self):
+        orig_entry = IndexEntry('M', 'file.txt')
+        new_entry = IndexEntry(None, 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('checkout', 'file.txt')
+
+    def test_performs_correct_actions_when_staged_file_is_to_be_reset(self):
+        orig_entry = IndexEntry('A', 'file.txt')
+        new_entry = IndexEntry(None, 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_has_calls(
+            [mock.call('reset', 'file.txt'), mock.call('checkout', 'file.txt')]
+        )
+
+    def test_performs_correct_action_when_modified_file_is_to_be_untracked(self):
+        orig_entry = IndexEntry('M', 'file.txt')
+        new_entry = IndexEntry('?', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with(
+            ['rm', '--cached'], 'file.txt'
+        )
 
 
 class PerformGitActionTests(unittest.TestCase, WithPatching):
