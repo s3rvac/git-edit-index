@@ -47,6 +47,7 @@ from git_edit_index import git_status
 from git_edit_index import parse_args
 from git_edit_index import perform_git_action
 from git_edit_index import reflect_index_change
+from git_edit_index import reflect_index_changes
 from git_edit_index import repository_path
 
 
@@ -297,6 +298,27 @@ class EditorCmdFromEndTests(unittest.TestCase, WithPatching):
         cmd = editor_cmd_from_env()
 
         self.assertIsNone(cmd)
+
+
+class ReflectIndexChangesTests(unittest.TestCase, WithPatching):
+    """Tests for `reflect_index_changes()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.reflect_index_change = mock.Mock()
+        self.patch('git_edit_index.reflect_index_change', self.reflect_index_change)
+
+    def test_calls_reflect_index_change_for_correct_entries(self):
+        entry1 = IndexEntry('M', 'file1.txt')
+        entry2 = IndexEntry('M', 'file2.txt')
+        entry3 = IndexEntry('?', 'file1.txt')
+        orig_index = Index([entry1, entry2])
+        new_index = Index([entry3, entry2])
+
+        reflect_index_changes(orig_index, new_index)
+
+        self.reflect_index_change.assert_called_once_with(entry1, entry3)
 
 
 class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
