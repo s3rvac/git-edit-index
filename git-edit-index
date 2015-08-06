@@ -261,12 +261,12 @@ def parse_args(argv):
     parser.parse_args(argv)
 
 
-def main():
-    parse_args(sys.argv[1:])
+def main(argv):
+    parse_args(argv[1:])
     orig_index = current_index()
     new_index = edit_index(orig_index)
     reflect_index_changes(orig_index, new_index)
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
