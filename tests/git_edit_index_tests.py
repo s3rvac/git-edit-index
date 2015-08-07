@@ -482,8 +482,14 @@ class MainTests(unittest.TestCase, WithPatching):
         self.stderr = io.StringIO()
         self.patch('sys.stderr', self.stderr)
 
-        self.subprocess = mock.Mock()
-        self.patch('git_edit_index.subprocess', self.subprocess)
+        self.current_index = mock.Mock()
+        self.patch('git_edit_index.current_index', self.current_index)
+
+        self.edit_index = mock.Mock()
+        self.patch('git_edit_index.edit_index', self.edit_index)
+
+        self.reflect_index_changes = mock.Mock()
+        self.patch('git_edit_index.reflect_index_changes', self.reflect_index_changes)
 
     def test_main_prints_help_to_stdout_and_exits_with_zero_when_requested(self):
         with self.assertRaises(SystemExit) as cm:
@@ -496,3 +502,14 @@ class MainTests(unittest.TestCase, WithPatching):
             main(['git-edit-index', '--xxx'])
         self.assertIn('--xxx', self.stderr.getvalue())
         self.assertNotEqual(cm.exception.code, 0)
+
+    def test_main_shows_editor_to_user_and_reflects_changes_when_index_is_nonempty(self):
+        orig_index = Index([IndexEntry('M', 'file.txt')])
+        self.current_index.return_value = orig_index
+
+        main(['git-edit-index'])
+
+        self.edit_index.assert_called_once_with(orig_index)
+        self.reflect_index_changes.assert_called_once_with(
+            orig_index, self.edit_index.return_value
+        )
