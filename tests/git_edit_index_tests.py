@@ -305,9 +305,17 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         self.perform_git_action.assert_called_once_with('add', 'file.txt')
 
-    def test_performs_correct_action_when_staged_file_is_to_be_unstaged(self):
+    def test_performs_correct_action_when_modified_staged_file_is_to_be_unstaged(self):
         orig_entry = IndexEntry('A', 'file.txt')
         new_entry = IndexEntry('M', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('reset', 'file.txt')
+
+    def test_performs_correct_action_when_deleted_staged_file_is_to_be_unstaged(self):
+        orig_entry = IndexEntry('A', 'file.txt')
+        new_entry = IndexEntry('D', 'file.txt')
 
         reflect_index_change(orig_entry, new_entry)
 

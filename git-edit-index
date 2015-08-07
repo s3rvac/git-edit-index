@@ -202,7 +202,7 @@ def reflect_index_change(orig_entry, new_entry):
             os.remove(orig_entry.file)
     elif new_entry.status == 'A':
         perform_git_action('add', new_entry.file)
-    elif new_entry.status == 'M':
+    elif new_entry.status in ['D', 'M']:
         perform_git_action('reset', new_entry.file)
     elif new_entry.status == '?':
         perform_git_action(['rm', '--cached'], new_entry.file)
