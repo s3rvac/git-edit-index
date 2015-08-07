@@ -153,6 +153,12 @@ class IndexEntryTests(unittest.TestCase):
         self.assertEqual(entry.status, '?')
         self.assertEqual(entry.file, 'file.txt')
 
+    def test_from_line_ignores_case_of_status(self):
+        entry = IndexEntry.from_line('a file.txt')
+
+        self.assertEqual(entry.status, 'A')
+        self.assertEqual(entry.file, 'file.txt')
+
     def test_str_returns_correct_representation(self):
         entry = IndexEntry('M', 'file.txt')
 
