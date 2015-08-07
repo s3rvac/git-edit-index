@@ -4,6 +4,9 @@ Changelog
 dev
 ---
 
+0.3 (2015-08-07)
+----------------
+
 * FEA: Allow staging, unstaging, and reverting changes of deleted files.
 * FEA: Allow removing an untracked file by removing the corresponding line in
   the editor.
