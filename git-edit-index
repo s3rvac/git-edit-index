@@ -189,14 +189,14 @@ def reflect_index_change(orig_entry, new_entry):
     if new_entry.status is None:
         # The file is not present in the new index, so either delete it or
         # revert changes done to the file since the last commit, depending on
-        # the original status
-        if orig_entry.status == '?':
-            os.remove(orig_entry.file)
-            return
+        # the original status.
         if orig_entry.status == 'A':
-            # We need to reset the file before checkouting.
             perform_git_action('reset', orig_entry.file)
-        perform_git_action('checkout', orig_entry.file)
+            perform_git_action('checkout', orig_entry.file)
+        elif orig_entry.status == 'M':
+            perform_git_action('checkout', orig_entry.file)
+        elif orig_entry.status == '?':
+            os.remove(orig_entry.file)
     elif new_entry.status == 'A':
         perform_git_action('add', new_entry.file)
     elif new_entry.status == 'M':
