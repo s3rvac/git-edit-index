@@ -4,7 +4,7 @@ Changelog
 dev
 ---
 
-* -
+* FEA: When the index is empty, do not show an empty editor.
 
 0.2 (2015-05-25)
 ----------------

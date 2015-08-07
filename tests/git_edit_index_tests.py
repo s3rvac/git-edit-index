@@ -513,3 +513,10 @@ class MainTests(unittest.TestCase, WithPatching):
         self.reflect_index_changes.assert_called_once_with(
             orig_index, self.edit_index.return_value
         )
+
+    def test_main_does_not_show_editor_to_user_when_index_is_empty(self):
+        self.current_index.return_value = Index()
+
+        main(['git-edit-index'])
+
+        self.assertFalse(self.edit_index.called)

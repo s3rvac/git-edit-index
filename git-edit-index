@@ -263,7 +263,12 @@ def parse_args(argv):
 
 def main(argv):
     parse_args(argv[1:])
+
     orig_index = current_index()
+    if not orig_index:
+        # The index is empty, so do not bother the user with an empty editor.
+        return
+
     new_index = edit_index(orig_index)
     reflect_index_changes(orig_index, new_index)
 
