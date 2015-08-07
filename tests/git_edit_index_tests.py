@@ -339,6 +339,14 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
             [mock.call('reset', 'file.txt'), mock.call('checkout', 'file.txt')]
         )
 
+    def test_performs_correct_action_when_deleted_file_is_to_be_reset(self):
+        orig_entry = IndexEntry('D', 'file.txt')
+        new_entry = NoIndexEntry('file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('checkout', 'file.txt')
+
     def test_performs_correct_action_when_modified_file_is_to_be_untracked(self):
         orig_entry = IndexEntry('M', 'file.txt')
         new_entry = IndexEntry('?', 'file.txt')

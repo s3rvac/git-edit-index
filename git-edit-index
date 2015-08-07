@@ -196,7 +196,7 @@ def reflect_index_change(orig_entry, new_entry):
         if orig_entry.status == 'A':
             perform_git_action('reset', orig_entry.file)
             perform_git_action('checkout', orig_entry.file)
-        elif orig_entry.status == 'M':
+        elif orig_entry.status in ['D', 'M']:
             perform_git_action('checkout', orig_entry.file)
         elif orig_entry.status == '?':
             os.remove(orig_entry.file)
