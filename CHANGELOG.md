@@ -4,6 +4,7 @@ Changelog
 dev
 ---
 
+* FEA: Allow staging of deleted files.
 * FEA: Allow removing an untracked file by removing the corresponding line in
   the editor.
 * FEA: Allow setting the editor also by setting the `GIT_EDITOR` or `VISUAL`

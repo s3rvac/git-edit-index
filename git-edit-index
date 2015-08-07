@@ -83,6 +83,7 @@ class IndexEntry(object):
         #     ----------------------------------------
         #     M  FILE    | A FILE     | added file
         #      M FILE    | M FILE     | modified file
+        #      D FILE    | D FILE     | deleted file
         #     ?? FILE    | ? FILE     | untracked file
         #
         m = re.match(r'(.{2} ?)(.+)', line)
@@ -95,6 +96,8 @@ class IndexEntry(object):
             return cls('A', file)
         elif re.match(r'( M|M)', status):
             return cls('M', file)
+        elif re.match(r'( D|D)', status):
+            return cls('D', file)
         elif re.match(r'\?', status):
             return cls('?', file)
 
