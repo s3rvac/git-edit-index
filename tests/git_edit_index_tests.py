@@ -335,9 +335,10 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         reflect_index_change(orig_entry, new_entry)
 
-        self.perform_git_action.assert_has_calls(
-            [mock.call('reset', 'file.txt'), mock.call('checkout', 'file.txt')]
-        )
+        self.perform_git_action.assert_has_calls([
+            mock.call('reset', 'file.txt'),
+            mock.call('checkout', 'file.txt', ignore_errors=True)
+        ])
 
     def test_performs_correct_action_when_deleted_file_is_to_be_reset(self):
         orig_entry = IndexEntry('D', 'file.txt')
@@ -377,7 +378,8 @@ class PerformGitActionTests(unittest.TestCase, WithPatching):
 
         self.subprocess.call.assert_called_once_with(
             ['git', 'add', '--', os.path.join('/', 'file.txt')],
-            stdout=self.subprocess.PIPE
+            stdout=self.subprocess.PIPE,
+            stderr=None
         )
 
     def test_calls_git_with_proper_arguments_when_action_is_compound_command(self):
@@ -387,7 +389,19 @@ class PerformGitActionTests(unittest.TestCase, WithPatching):
 
         self.subprocess.call.assert_called_once_with(
             ['git', 'rm', '--cached', '--', os.path.join('/', 'file.txt')],
-            stdout=self.subprocess.PIPE
+            stdout=self.subprocess.PIPE,
+            stderr=None
+        )
+
+    def test_ignores_errors_when_requested(self):
+        self.repository_path.return_value = '/'
+
+        perform_git_action('checkout', 'file.txt', ignore_errors=True)
+
+        self.subprocess.call.assert_called_once_with(
+            ['git', 'checkout', '--', os.path.join('/', 'file.txt')],
+            stdout=self.subprocess.PIPE,
+            stderr=self.subprocess.PIPE
         )
 
 

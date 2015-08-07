@@ -195,7 +195,10 @@ def reflect_index_change(orig_entry, new_entry):
         # the original status.
         if orig_entry.status == 'A':
             perform_git_action('reset', orig_entry.file)
-            perform_git_action('checkout', orig_entry.file)
+            # Ignore errors because the file might originally be untracked, in
+            # which case the checkout would result in an error ('error: pathspec
+            # X did not match any file(s) known to git').
+            perform_git_action('checkout', orig_entry.file, ignore_errors=True)
         elif orig_entry.status in ['D', 'M']:
             perform_git_action('checkout', orig_entry.file)
         elif orig_entry.status == '?':
@@ -208,7 +211,7 @@ def reflect_index_change(orig_entry, new_entry):
         perform_git_action(['rm', '--cached'], new_entry.file)
 
 
-def perform_git_action(action, file):
+def perform_git_action(action, file, ignore_errors=False):
     """Performs the given git action over the given file."""
     if isinstance(action, str):
         action = [action]
@@ -216,7 +219,11 @@ def perform_git_action(action, file):
     # shows paths relative to the repository root.
     file = os.path.join(repository_path(), file)
     # '--' prevents confusion when the file looks like a branch or tag.
-    subprocess.call(['git'] + action + ['--', file], stdout=subprocess.PIPE)
+    subprocess.call(
+        ['git'] + action + ['--', file],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE if ignore_errors else None
+    )
 
 
 def repository_path():
