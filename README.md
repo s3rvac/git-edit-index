@@ -45,6 +45,8 @@ can stage or unstage files from the index simply by changing their status:
   add FILE`.
 * To stop tracking of a file, change its status to `?`. This runs `git rm
   --cached FILE`.
+* To delete an untracked file, remove the line with the file. This deletes the
+  file by using the operating system's file-deletion facilities.
 * To revert changes done to a file since the last commit, remove the line with
   the file. This runs `git checkout FILE` (if the file is staged, it first runs
   `git reset FILE`).

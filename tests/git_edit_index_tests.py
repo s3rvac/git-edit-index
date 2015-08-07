@@ -257,6 +257,9 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
         self.perform_git_action = mock.Mock()
         self.patch('git_edit_index.perform_git_action', self.perform_git_action)
 
+        self.os_remove = mock.Mock()
+        self.patch('git_edit_index.os.remove', self.os_remove)
+
     def test_performs_correct_action_when_untracked_file_is_to_be_added(self):
         orig_entry = IndexEntry('?', 'file.txt')
         new_entry = IndexEntry('A', 'file.txt')
@@ -264,6 +267,15 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
         reflect_index_change(orig_entry, new_entry)
 
         self.perform_git_action.assert_called_once_with('add', 'file.txt')
+
+    def test_performs_correct_action_when_untracked_file_is_to_be_deleted(self):
+        orig_entry = IndexEntry('?', 'file.txt')
+        new_entry = NoIndexEntry('file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.os_remove.assert_called_once_with('file.txt')
+        self.assertFalse(self.perform_git_action.called)
 
     def test_performs_correct_action_when_modified_file_is_to_be_added(self):
         orig_entry = IndexEntry('M', 'file.txt')

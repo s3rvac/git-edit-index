@@ -4,6 +4,8 @@ Changelog
 dev
 ---
 
+* FEA: Allow removing an untracked file by removing the corresponding line in
+  the editor.
 * FEA: Allow setting the editor also by setting the `GIT_EDITOR` or `VISUAL`
   environment variables.
 * FEA: When the index is empty, do not show an empty editor.
