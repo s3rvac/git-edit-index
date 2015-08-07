@@ -485,13 +485,13 @@ class MainTests(unittest.TestCase, WithPatching):
         self.subprocess = mock.Mock()
         self.patch('git_edit_index.subprocess', self.subprocess)
 
-    def test_main_prints_help_to_stdout_and_exists_with_zero_when_requested(self):
+    def test_main_prints_help_to_stdout_and_exits_with_zero_when_requested(self):
         with self.assertRaises(SystemExit) as cm:
             main(['git-edit-index', '--help'])
         self.assertIn('help', self.stdout.getvalue())
         self.assertEqual(cm.exception.code, 0)
 
-    def test_main_exists_with_non_zero_return_code_when_invalid_parameter_is_given(self):
+    def test_main_exits_with_non_zero_return_code_when_invalid_parameter_is_given(self):
         with self.assertRaises(SystemExit) as cm:
             main(['git-edit-index', '--xxx'])
         self.assertIn('--xxx', self.stderr.getvalue())
