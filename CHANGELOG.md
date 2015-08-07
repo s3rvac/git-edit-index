@@ -4,6 +4,8 @@ Changelog
 dev
 ---
 
+* FEA: Allow setting the editor also by setting the `GIT_EDITOR` or `VISUAL`
+  environment variables.
 * FEA: When the index is empty, do not show an empty editor.
 
 0.2 (2015-05-25)

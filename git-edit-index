@@ -154,45 +154,15 @@ def edit_index(index):
         return Index.from_text(f.read(), line_sep='\n')
 
 
-def editor_cmd_from_git():
-    """Returns a command to start an editor based on the git's configuration.
-    """
-    try:
-        editor = subprocess.check_output(
-            ['git', 'config', 'core.editor'],
-            universal_newlines=True
-        )
-        # The editor may include parameters (such as 'gvim -f'), so split it to
-        # get a complete command.
-        return editor.split()
-    except subprocess.CalledProcessError:
-        # Either no editor is set (git returns 1 in such a case) or the command
-        # failed for another reason.
-        return None
-
-
-def editor_cmd_from_env():
-    """Returns a command to start an editor based on the environment."""
-    try:
-        return os.environ['EDITOR'].split()
-    except KeyError:
-        return None
-
-
 def editor_cmd():
     """Returns a command to start an editor."""
-    editor_cmd = editor_cmd_from_git()
-    if editor_cmd is not None:
-        return editor_cmd
-
-    editor_cmd = editor_cmd_from_env()
-    if editor_cmd is not None:
-        return editor_cmd
-
-    raise RuntimeError(
-        "No editor found. Either set 'core.editor' in git "
-        "or specify the 'EDITOR' environment variable."
+    editor = subprocess.check_output(
+        ['git', 'var', 'GIT_EDITOR'],
+        universal_newlines=True
     )
+    # The editor may include parameters (such as 'gvim -f'), so split it to
+    # get a complete command.
+    return editor.split()
 
 
 def reflect_index_changes(orig_index, new_index):

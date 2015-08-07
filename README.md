@@ -61,11 +61,13 @@ in your Git config:
 
     git config --global core.editor "gvim -f"
 
-or by setting the `EDITOR` environment variable in your shell:
+or by setting the `EDITOR`, `VISUAL`, or `GIT_EDITOR` environment variable in
+your shell:
 
     export EDITOR="gvim -f"
 
-The value of `core.config` has a precedence over `EDITOR`.
+See the VARIABLES section in the [manual pages for
+`git-var`](http://git-scm.com/docs/git-var) for the used order of preference.
 
 Using an Alias
 --------------
