@@ -44,6 +44,7 @@ from git_edit_index import editor_cmd
 from git_edit_index import editor_cmd_from_env
 from git_edit_index import editor_cmd_from_git
 from git_edit_index import git_status
+from git_edit_index import main
 from git_edit_index import parse_args
 from git_edit_index import perform_git_action
 from git_edit_index import reflect_index_change
@@ -460,4 +461,32 @@ class ParseArgsTests(unittest.TestCase, WithPatching):
     def test_prints_error_message_and_exits_when_invalid_parameter_is_given(self):
         with self.assertRaises(SystemExit) as cm:
             parse_args(['git-edit-index', '--xyz'])
+        self.assertNotEqual(cm.exception.code, 0)
+
+
+class MainTests(unittest.TestCase, WithPatching):
+    """Tests for `main()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.stdout = io.StringIO()
+        self.patch('sys.stdout', self.stdout)
+
+        self.stderr = io.StringIO()
+        self.patch('sys.stderr', self.stderr)
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+    def test_main_prints_help_to_stdout_and_exists_with_zero_when_requested(self):
+        with self.assertRaises(SystemExit) as cm:
+            main(['git-edit-index', '--help'])
+        self.assertIn('help', self.stdout.getvalue())
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_main_exists_with_non_zero_return_code_when_invalid_parameter_is_given(self):
+        with self.assertRaises(SystemExit) as cm:
+            main(['git-edit-index', '--xxx'])
+        self.assertIn('--xxx', self.stderr.getvalue())
         self.assertNotEqual(cm.exception.code, 0)
