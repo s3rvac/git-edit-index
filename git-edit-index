@@ -191,8 +191,8 @@ def reflect_index_change(orig_entry, new_entry):
     """
     if new_entry.status is None:
         # The file is not present in the new index, so either delete it or
-        # revert changes done to the file since the last commit, depending on
-        # the original status.
+        # revert the changes done to the file since the last commit, depending
+        # on its original status.
         if orig_entry.status == 'A':
             perform_git_action('reset', orig_entry.file)
             # Ignore errors because the file might originally be untracked, in
