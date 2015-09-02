@@ -4,6 +4,9 @@ Changelog
 dev
 ---
 
+* FIX: When an untracked directory is to be removed, use `shutil.rmtree()`
+  instead of `os.remove()` because `os.remove()` does not work on directories.
+
 0.3 (2015-08-07)
 ----------------
 

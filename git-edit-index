@@ -34,6 +34,7 @@
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -202,7 +203,12 @@ def reflect_index_change(orig_entry, new_entry):
         elif orig_entry.status in ['D', 'M']:
             perform_git_action('checkout', orig_entry.file)
         elif orig_entry.status == '?':
-            os.remove(orig_entry.file)
+            # The file may actually be a directory, which has to be deleted
+            # differently than an ordinary file.
+            if os.path.isdir(orig_entry.file):
+                shutil.rmtree(orig_entry.file)
+            else:
+                os.remove(orig_entry.file)
     elif new_entry.status == 'A':
         perform_git_action('add', new_entry.file)
     elif new_entry.status in ['D', 'M']:
