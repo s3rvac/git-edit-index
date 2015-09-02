@@ -46,6 +46,7 @@ from git_edit_index import parse_args
 from git_edit_index import perform_git_action
 from git_edit_index import reflect_index_change
 from git_edit_index import reflect_index_changes
+from git_edit_index import remove
 from git_edit_index import repository_path
 
 
@@ -266,17 +267,11 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
     def setUp(self):
         super().setUp()
 
+        self.remove = mock.Mock()
+        self.patch('git_edit_index.remove', self.remove)
+
         self.perform_git_action = mock.Mock()
         self.patch('git_edit_index.perform_git_action', self.perform_git_action)
-
-        self.os_path_isdir = mock.Mock()
-        self.patch('git_edit_index.os.path.isdir', self.os_path_isdir)
-
-        self.os_remove = mock.Mock()
-        self.patch('git_edit_index.os.remove', self.os_remove)
-
-        self.shutil_rmtree = mock.Mock()
-        self.patch('git_edit_index.shutil.rmtree', self.shutil_rmtree)
 
     def test_performs_correct_action_when_untracked_file_is_to_be_added(self):
         orig_entry = IndexEntry('?', 'file.txt')
@@ -289,21 +284,10 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
     def test_performs_correct_action_when_untracked_file_is_to_be_deleted(self):
         orig_entry = IndexEntry('?', 'file.txt')
         new_entry = NoIndexEntry('file.txt')
-        self.os_path_isdir.return_value = False
 
         reflect_index_change(orig_entry, new_entry)
 
-        self.os_remove.assert_called_once_with('file.txt')
-        self.assertFalse(self.perform_git_action.called)
-
-    def test_performs_correct_action_when_untracked_directory_is_to_be_deleted(self):
-        orig_entry = IndexEntry('?', 'dir')
-        new_entry = NoIndexEntry('dir')
-        self.os_path_isdir.return_value = True
-
-        reflect_index_change(orig_entry, new_entry)
-
-        self.shutil_rmtree.assert_called_once_with('dir')
+        self.remove.assert_called_once_with('file.txt')
         self.assertFalse(self.perform_git_action.called)
 
     def test_performs_correct_action_when_modified_file_is_to_be_added(self):
@@ -374,6 +358,36 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
         self.perform_git_action.assert_called_once_with(
             ['rm', '--cached'], 'file.txt'
         )
+
+
+class RemoveTests(unittest.TestCase, WithPatching):
+    """Tests for `remove()`."""
+
+    def setUp(self):
+        super().setUp()
+
+        self.os_path_isdir = mock.Mock()
+        self.patch('git_edit_index.os.path.isdir', self.os_path_isdir)
+
+        self.os_remove = mock.Mock()
+        self.patch('git_edit_index.os.remove', self.os_remove)
+
+        self.shutil_rmtree = mock.Mock()
+        self.patch('git_edit_index.shutil.rmtree', self.shutil_rmtree)
+
+    def test_correct_command_is_called_to_remove_file(self):
+        self.os_path_isdir.return_value = False
+
+        remove('file.txt')
+
+        self.os_remove.assert_called_once_with('file.txt')
+
+    def test_correct_command_is_called_to_remove_directory(self):
+        self.os_path_isdir.return_value = True
+
+        remove('dir')
+
+        self.shutil_rmtree.assert_called_once_with('dir')
 
 
 class PerformGitActionTests(unittest.TestCase, WithPatching):
