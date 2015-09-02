@@ -212,6 +212,13 @@ def reflect_index_change(orig_entry, new_entry):
         perform_git_action(['rm', '--cached'], new_entry.file)
 
 
+def full_path_to(file):
+    """Returns an absolute path to the given file."""
+    # We need to use full paths to files because `git status --porcelain` shows
+    # paths relative to the repository's root.
+    return os.path.join(repository_path(), file)
+
+
 def remove(file):
     """Removes the given file or directory from the filesytem."""
     # Directories have to be removed differently than files.
@@ -225,12 +232,9 @@ def perform_git_action(action, file, ignore_errors=False):
     """Performs the given git action over the given file."""
     if isinstance(action, str):
         action = [action]
-    # We need to use a full path to the file because `git status --porcelain`
-    # shows paths relative to the repository root.
-    file = os.path.join(repository_path(), file)
     # '--' prevents confusion when the file looks like a branch or tag.
     subprocess.call(
-        ['git'] + action + ['--', file],
+        ['git'] + action + ['--', full_path_to(file)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE if ignore_errors else None
     )
