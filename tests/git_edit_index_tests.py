@@ -366,6 +366,9 @@ class RemoveTests(unittest.TestCase, WithPatching):
     def setUp(self):
         super().setUp()
 
+        self.repository_path = mock.Mock()
+        self.patch('git_edit_index.repository_path', self.repository_path)
+
         self.os_path_isdir = mock.Mock()
         self.patch('git_edit_index.os.path.isdir', self.os_path_isdir)
 
@@ -376,18 +379,20 @@ class RemoveTests(unittest.TestCase, WithPatching):
         self.patch('git_edit_index.shutil.rmtree', self.shutil_rmtree)
 
     def test_correct_command_is_called_to_remove_file(self):
+        self.repository_path.return_value = '/'
         self.os_path_isdir.return_value = False
 
         remove('file.txt')
 
-        self.os_remove.assert_called_once_with('file.txt')
+        self.os_remove.assert_called_once_with(os.path.join('/', 'file.txt'))
 
     def test_correct_command_is_called_to_remove_directory(self):
+        self.repository_path.return_value = '/'
         self.os_path_isdir.return_value = True
 
         remove('dir')
 
-        self.shutil_rmtree.assert_called_once_with('dir')
+        self.shutil_rmtree.assert_called_once_with(os.path.join('/', 'dir'))
 
 
 class PerformGitActionTests(unittest.TestCase, WithPatching):
