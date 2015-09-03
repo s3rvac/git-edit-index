@@ -9,7 +9,7 @@ dev
 0.3.1 (2015-09-03)
 ------------------
 
-* FIX: Fix removal of files or directories when not being inside the
+* FIX: Fixed removal of files or directories when not being inside the
   repository's root path. Previously, this failed with an exception.
 * FIX: When an untracked directory is to be removed, use `shutil.rmtree()`
   instead of `os.remove()` because `os.remove()` does not work on directories.
