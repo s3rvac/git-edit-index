@@ -4,6 +4,11 @@ Changelog
 dev
 ---
 
+* -
+
+0.3.2 (2015-10-09)
+------------------
+
 * FIX: Fixed displaying of the index in editors that have problems when the
   overall text does not end with a newline.
 
