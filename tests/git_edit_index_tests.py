@@ -91,13 +91,20 @@ class IndexTests(unittest.TestCase):
         self.assertEqual(index.entry_for('file1.txt').status, 'M')
         self.assertEqual(index.entry_for('file2.txt').status, '?')
 
-    def test_str_returns_correct_representation(self):
+    def test_str_returns_correct_representation_when_there_are_no_entries(self):
+        index = Index()
+
+        self.assertEqual(str(index), '')
+
+    def test_str_returns_correct_representation_when_there_are_entries(self):
         index = Index([
             IndexEntry('M', 'file1.txt'),
             IndexEntry('?', 'file2.txt')
         ])
 
-        self.assertEqual(str(index), 'M file1.txt\n? file2.txt')
+        # The last entry has to end with a newline (otherwise, some editors may
+        # have problems displaying it.
+        self.assertEqual(str(index), 'M file1.txt\n? file2.txt\n')
 
 
 class IndexEntryTests(unittest.TestCase):

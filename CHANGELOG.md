@@ -4,7 +4,8 @@ Changelog
 dev
 ---
 
-* -
+* FIX: Fixed displaying of the index in editors that have problems when the
+  overall text does not end with a newline.
 
 0.3.1 (2015-09-03)
 ------------------

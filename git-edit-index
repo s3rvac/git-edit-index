@@ -64,7 +64,11 @@ class Index(list):
         return index
 
     def __str__(self):
-        return '\n'.join(str(entry) for entry in self)
+        # When there are entries, ensure that the resulting string ends with a
+        # newline. Otherwise, when the last entry does not end with a newline,
+        # some editors may have problems displaying it.
+        s = '\n'.join(str(entry) for entry in self)
+        return s + '\n' if s else s
 
 
 class IndexEntry(object):
