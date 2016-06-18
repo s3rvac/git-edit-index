@@ -1,6 +1,8 @@
 git-edit-index
 ==============
 
+[![Build Status](https://travis-ci.org/s3rvac/git-edit-index.svg?branch=master)](https://travis-ci.org/s3rvac/git-edit-index)
+
 This command represents a faster alternative to `git add -i` or `git gui`. It
 allows you to stage or unstage files from the index in an editor, just like
 when you perform an interactive rebase.
