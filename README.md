@@ -22,8 +22,8 @@ To stage (add) the first two files, simply change the text to
 Requirements
 ------------
 
-The script requires Python 2.7 or 3.x. Both CPython and PyPy implementations
-are supported.
+The script requires Python 2.7 or Python >= 3.2. Both CPython and PyPy
+implementations are supported.
 
 Installation
 ------------
