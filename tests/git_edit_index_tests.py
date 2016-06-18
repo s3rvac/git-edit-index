@@ -209,7 +209,7 @@ class GitStatusTests(unittest.TestCase, WithPatching):
     """Tests for `git_status()`."""
 
     def setUp(self):
-        super().setUp()
+        super(GitStatusTests, self).setUp()
 
         self.subprocess = mock.Mock()
         self.patch('git_edit_index.subprocess', self.subprocess)
@@ -231,7 +231,7 @@ class EditorCmdTests(unittest.TestCase, WithPatching):
     """Tests for `editor_cmd()`."""
 
     def setUp(self):
-        super().setUp()
+        super(EditorCmdTests, self).setUp()
 
         self.subprocess = mock.Mock()
         self.patch('git_edit_index.subprocess', self.subprocess)
@@ -255,7 +255,7 @@ class ReflectIndexChangesTests(unittest.TestCase, WithPatching):
     """Tests for `reflect_index_changes()`."""
 
     def setUp(self):
-        super().setUp()
+        super(ReflectIndexChangesTests, self).setUp()
 
         self.reflect_index_change = mock.Mock()
         self.patch('git_edit_index.reflect_index_change', self.reflect_index_change)
@@ -276,7 +276,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
     """Tests for `reflect_index_change()`."""
 
     def setUp(self):
-        super().setUp()
+        super(ReflectIndexChangeTests, self).setUp()
 
         self.remove = mock.Mock()
         self.patch('git_edit_index.remove', self.remove)
@@ -375,7 +375,7 @@ class RemoveTests(unittest.TestCase, WithPatching):
     """Tests for `remove()`."""
 
     def setUp(self):
-        super().setUp()
+        super(RemoveTests, self).setUp()
 
         self.repository_path = mock.Mock()
         self.patch('git_edit_index.repository_path', self.repository_path)
@@ -410,7 +410,7 @@ class PerformGitActionTests(unittest.TestCase, WithPatching):
     """Tests for `perform_git_action()`."""
 
     def setUp(self):
-        super().setUp()
+        super(PerformGitActionTests, self).setUp()
 
         self.subprocess = mock.Mock()
         self.patch('git_edit_index.subprocess', self.subprocess)
@@ -456,7 +456,7 @@ class RepositoryPathTests(unittest.TestCase, WithPatching):
     """Tests for `repository_path()`."""
 
     def setUp(self):
-        super().setUp()
+        super(RepositoryPathTests, self).setUp()
 
         self.subprocess = mock.Mock()
         self.patch('git_edit_index.subprocess', self.subprocess)
@@ -480,7 +480,7 @@ class ParseArgsTests(unittest.TestCase, WithPatching):
     """Tests for `parse_args()`."""
 
     def setUp(self):
-        super().setUp()
+        super(ParseArgsTests, self).setUp()
 
         self.stdout = io.StringIO()
         self.patch('sys.stdout', self.stdout)
@@ -503,7 +503,7 @@ class MainTests(unittest.TestCase, WithPatching):
     """Tests for `main()`."""
 
     def setUp(self):
-        super().setUp()
+        super(MainTests, self).setUp()
 
         self.stdout = io.StringIO()
         self.patch('sys.stdout', self.stdout)
