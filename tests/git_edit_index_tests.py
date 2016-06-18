@@ -34,7 +34,11 @@
 import io
 import os
 import unittest
-from unittest import mock
+
+try:
+    from unittest import mock  # Python 3
+except ImportError:
+    import mock  # Python 2
 
 from git_edit_index import Index
 from git_edit_index import IndexEntry
