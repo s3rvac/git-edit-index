@@ -4,7 +4,7 @@ Changelog
 dev
 ---
 
-* -
+* FIX: Fixed unit tests under Python 2 and PyPy.
 
 0.3.2 (2015-10-09)
 ------------------
