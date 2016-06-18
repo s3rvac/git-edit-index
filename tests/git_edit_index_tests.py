@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Tests for git-edit-index.
 #
