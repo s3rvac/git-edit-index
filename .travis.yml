@@ -1,0 +1,20 @@
+language: python
+python:
+  - 2.7
+  - 3.2
+  - 3.3
+  - 3.4
+  - 3.5
+  - pypy
+  - pypy3
+install:
+  - pip install flake8
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.2' ]]; then pip install 'coverage<4.0.0'; else pip install coverage; fi
+  - pip install coveralls
+  - pip install mock
+  - pip install nose
+script:
+  - nosetests tests --with-coverage --cover-package=git_edit_index --cover-erase
+  - flake8 --ignore=E501 git-edit-index tests/git_edit_index_tests.py
+after_success:
+  - coveralls
