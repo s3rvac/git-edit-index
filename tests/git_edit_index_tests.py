@@ -31,9 +31,13 @@
 #    DEALINGS IN THE SOFTWARE.
 #
 
-import io
 import os
 import unittest
+
+try:
+    from cStringIO import StringIO  # Python 2
+except ImportError:
+    from io import StringIO  # Python 3
 
 try:
     from unittest import mock  # Python 3
@@ -482,10 +486,10 @@ class ParseArgsTests(unittest.TestCase, WithPatching):
     def setUp(self):
         super(ParseArgsTests, self).setUp()
 
-        self.stdout = io.StringIO()
+        self.stdout = StringIO()
         self.patch('sys.stdout', self.stdout)
 
-        self.stderr = io.StringIO()
+        self.stderr = StringIO()
         self.patch('sys.stderr', self.stderr)
 
     def test_prints_help_and_exits_when_requested(self):
@@ -505,10 +509,10 @@ class MainTests(unittest.TestCase, WithPatching):
     def setUp(self):
         super(MainTests, self).setUp()
 
-        self.stdout = io.StringIO()
+        self.stdout = StringIO()
         self.patch('sys.stdout', self.stdout)
 
-        self.stderr = io.StringIO()
+        self.stderr = StringIO()
         self.patch('sys.stderr', self.stderr)
 
         self.current_index = mock.Mock()
