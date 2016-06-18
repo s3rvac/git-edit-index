@@ -552,3 +552,7 @@ class MainTests(unittest.TestCase, WithPatching):
         main(['git-edit-index'])
 
         self.assertFalse(self.edit_index.called)
+
+
+if __name__ == '__main__':
+    unittest.main()
