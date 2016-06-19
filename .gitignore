@@ -8,6 +8,10 @@ __pycache__
 
 # Tox
 /.tox
+
+# Build and distribution
+/build
+/dist
 /git_edit_index.egg-info
 
 # Virtual environments

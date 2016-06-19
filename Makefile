@@ -21,7 +21,7 @@ clean:
 	@rm -rf .coverage coverage
 
 lint:
-	@flake8 --ignore=E501 git-edit-index tests/git_edit_index_tests.py
+	@flake8 --ignore=E501 git-edit-index tests/git_edit_index_tests.py setup.py
 
 tests:
 	@nosetests tests
