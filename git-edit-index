@@ -222,10 +222,10 @@ def reflect_index_change(orig_entry, new_entry):
         # on its original status.
         if orig_entry.status == 'A':
             perform_git_action('reset', orig_entry.file)
-            # Ignore errors because the file might originally be untracked, in
-            # which case the checkout would result in an error ('error: pathspec
-            # X did not match any file(s) known to git').
-            perform_git_action('checkout', orig_entry.file, ignore_errors=True)
+            # Ignore stderr because the file might originally be untracked, in
+            # which case the checkout would result in an error ('error:
+            # pathspec X did not match any file(s) known to git').
+            perform_git_action('checkout', orig_entry.file, ignore_stderr=True)
         elif orig_entry.status in ['D', 'M']:
             perform_git_action('checkout', orig_entry.file)
         elif orig_entry.status == '?':
@@ -255,15 +255,15 @@ def remove(file):
         os.remove(file)
 
 
-def perform_git_action(action, file, ignore_errors=False):
+def perform_git_action(action, file, ignore_stdout=True, ignore_stderr=False):
     """Performs the given git action over the given file."""
     if isinstance(action, str):
         action = [action]
     # '--' prevents confusion when the file looks like a branch or tag.
     subprocess.call(
         ['git'] + action + ['--', full_path_to(file)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE if ignore_errors else None
+        stdout=subprocess.PIPE if ignore_stdout else None,
+        stderr=subprocess.PIPE if ignore_stderr else None
     )
 
 

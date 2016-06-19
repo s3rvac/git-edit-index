@@ -425,7 +425,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         self.perform_git_action.assert_has_calls([
             mock.call('reset', 'file.txt'),
-            mock.call('checkout', 'file.txt', ignore_errors=True)
+            mock.call('checkout', 'file.txt', ignore_stderr=True)
         ])
 
     def test_performs_correct_action_when_deleted_file_is_to_be_reset(self):
@@ -516,10 +516,21 @@ class PerformGitActionTests(unittest.TestCase, WithPatching):
             stderr=None
         )
 
-    def test_ignores_errors_when_requested(self):
+    def test_does_not_ignore_stdout_when_requested(self):
         self.repository_path.return_value = '/'
 
-        perform_git_action('checkout', 'file.txt', ignore_errors=True)
+        perform_git_action(['add', '--patch'], 'file.txt', ignore_stdout=False)
+
+        self.subprocess.call.assert_called_once_with(
+            ['git', 'add', '--patch', '--', os.path.join('/', 'file.txt')],
+            stdout=None,
+            stderr=None
+        )
+
+    def test_ignores_stderr_when_requested(self):
+        self.repository_path.return_value = '/'
+
+        perform_git_action('checkout', 'file.txt', ignore_stderr=True)
 
         self.subprocess.call.assert_called_once_with(
             ['git', 'checkout', '--', os.path.join('/', 'file.txt')],
