@@ -99,6 +99,11 @@ class IndexTests(unittest.TestCase):
         self.assertEqual(index.entry_for('file1.txt').status, 'M')
         self.assertEqual(index.entry_for('file2.txt').status, '?')
 
+    def test_repr_returns_correct_representation(self):
+        index = Index([IndexEntry('M', 'file1.txt')])
+
+        self.assertEqual(repr(index), "Index([IndexEntry('M', 'file1.txt')])")
+
     def test_str_returns_correct_representation_when_there_are_no_entries(self):
         index = Index()
 
@@ -184,6 +189,11 @@ class IndexEntryTests(unittest.TestCase):
         self.assertEqual(entry.status, 'A')
         self.assertEqual(entry.file, 'file.txt')
 
+    def test_repr_returns_correct_representation(self):
+        entry = IndexEntry('M', 'file.txt')
+
+        self.assertEqual(repr(entry), "IndexEntry('M', 'file.txt')")
+
     def test_str_returns_correct_representation(self):
         entry = IndexEntry('M', 'file.txt')
 
@@ -202,6 +212,11 @@ class NoIndexEntryTests(unittest.TestCase):
         entry = NoIndexEntry('file.txt')
 
         self.assertEqual(entry.file, 'file.txt')
+
+    def test_repr_returns_correct_representation(self):
+        entry = NoIndexEntry('file.txt')
+
+        self.assertEqual(repr(entry), "NoIndexEntry('file.txt')")
 
     def test_str_returns_correct_representation(self):
         entry = NoIndexEntry('file.txt')

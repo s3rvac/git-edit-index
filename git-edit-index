@@ -66,6 +66,12 @@ class Index(list):
                 index.append(entry)
         return index
 
+    def __repr__(self):
+        return '{}({})'.format(
+            self.__class__.__name__,
+            super(Index, self).__repr__()
+        )
+
     def __str__(self):
         # When there are entries, ensure that the resulting string ends with a
         # newline. Otherwise, when the last entry does not end with a newline,
@@ -111,6 +117,13 @@ class IndexEntry(object):
 
         return None
 
+    def __repr__(self):
+        return '{}({!r}, {!r})'.format(
+            self.__class__.__name__,
+            self.status,
+            self.file
+        )
+
     def __str__(self):
         return '{} {}'.format(self.status, self.file)
 
@@ -123,6 +136,12 @@ class NoIndexEntry(IndexEntry):
 
     def __init__(self, file):
         IndexEntry.__init__(self, status=None, file=file)
+
+    def __repr__(self):
+        return '{}({!r})'.format(
+            self.__class__.__name__,
+            self.file
+        )
 
     def __str__(self):
         return '- {}'.format(self.file)
