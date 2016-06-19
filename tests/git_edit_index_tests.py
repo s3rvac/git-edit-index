@@ -50,7 +50,6 @@ from git_edit_index import __version__
 from git_edit_index import editor_cmd
 from git_edit_index import git_status
 from git_edit_index import main
-from git_edit_index import parse_args
 from git_edit_index import perform_git_action
 from git_edit_index import reflect_index_change
 from git_edit_index import reflect_index_changes
@@ -480,36 +479,8 @@ class RepositoryPathTests(unittest.TestCase, WithPatching):
         )
 
 
-class ParseArgsTests(unittest.TestCase, WithPatching):
-    """Tests for `parse_args()`."""
-
-    def setUp(self):
-        super(ParseArgsTests, self).setUp()
-
-        self.stdout = StringIO()
-        self.patch('sys.stdout', self.stdout)
-
-        self.stderr = StringIO()
-        self.patch('sys.stderr', self.stderr)
-
-    def test_prints_help_and_exits_when_requested(self):
-        with self.assertRaises(SystemExit) as cm:
-            parse_args(['git-edit-index', '--help'])
-        self.assertEqual(cm.exception.code, 0)
-
-    def test_prints_version_and_exits_when_requested(self):
-        with self.assertRaises(SystemExit) as cm:
-            parse_args(['git-edit-index', '--version'])
-        self.assertEqual(cm.exception.code, 0)
-
-    def test_prints_error_message_and_exits_when_invalid_parameter_is_given(self):
-        with self.assertRaises(SystemExit) as cm:
-            parse_args(['git-edit-index', '--xyz'])
-        self.assertNotEqual(cm.exception.code, 0)
-
-
 class MainTests(unittest.TestCase, WithPatching):
-    """Tests for `main()`."""
+    """Tests for `main()` and `parse_args()`."""
 
     def setUp(self):
         super(MainTests, self).setUp()
@@ -529,13 +500,13 @@ class MainTests(unittest.TestCase, WithPatching):
         self.reflect_index_changes = mock.Mock()
         self.patch('git_edit_index.reflect_index_changes', self.reflect_index_changes)
 
-    def test_main_prints_help_to_stdout_and_exits_with_zero_when_requested(self):
+    def test_prints_help_to_stdout_and_exits_with_zero_when_requested(self):
         with self.assertRaises(SystemExit) as cm:
             main(['git-edit-index', '--help'])
         self.assertIn('help', self.stdout.getvalue())
         self.assertEqual(cm.exception.code, 0)
 
-    def test_main_prints_version_to_stdout_and_exits_with_zero_when_requested(self):
+    def test_prints_version_to_stdout_and_exits_with_zero_when_requested(self):
         with self.assertRaises(SystemExit) as cm:
             main(['git-edit-index', '--version'])
         # Python < 3.4 emits the version to stderr, Python >= 3.4 to stdout.
@@ -543,13 +514,13 @@ class MainTests(unittest.TestCase, WithPatching):
         self.assertIn(__version__, output)
         self.assertEqual(cm.exception.code, 0)
 
-    def test_main_exits_with_non_zero_return_code_when_invalid_parameter_is_given(self):
+    def test_exits_with_non_zero_return_code_when_invalid_parameter_is_given(self):
         with self.assertRaises(SystemExit) as cm:
             main(['git-edit-index', '--xxx'])
         self.assertIn('--xxx', self.stderr.getvalue())
         self.assertNotEqual(cm.exception.code, 0)
 
-    def test_main_shows_editor_to_user_and_reflects_changes_when_index_is_nonempty(self):
+    def test_shows_editor_to_user_and_reflects_changes_when_index_is_nonempty(self):
         orig_index = Index([IndexEntry('M', 'file.txt')])
         self.current_index.return_value = orig_index
 
@@ -560,7 +531,7 @@ class MainTests(unittest.TestCase, WithPatching):
             orig_index, self.edit_index.return_value
         )
 
-    def test_main_does_not_show_editor_to_user_when_index_is_empty(self):
+    def test_does_not_show_editor_to_user_when_index_is_empty(self):
         self.current_index.return_value = Index()
 
         main(['git-edit-index'])
