@@ -46,6 +46,7 @@ except ImportError:
 from git_edit_index import Index
 from git_edit_index import IndexEntry
 from git_edit_index import NoIndexEntry
+from git_edit_index import __version__
 from git_edit_index import editor_cmd
 from git_edit_index import git_status
 from git_edit_index import main
@@ -496,6 +497,11 @@ class ParseArgsTests(unittest.TestCase, WithPatching):
             parse_args(['git-edit-index', '--help'])
         self.assertEqual(cm.exception.code, 0)
 
+    def test_prints_version_and_exits_when_requested(self):
+        with self.assertRaises(SystemExit) as cm:
+            parse_args(['git-edit-index', '--version'])
+        self.assertEqual(cm.exception.code, 0)
+
     def test_prints_error_message_and_exits_when_invalid_parameter_is_given(self):
         with self.assertRaises(SystemExit) as cm:
             parse_args(['git-edit-index', '--xyz'])
@@ -527,6 +533,14 @@ class MainTests(unittest.TestCase, WithPatching):
         with self.assertRaises(SystemExit) as cm:
             main(['git-edit-index', '--help'])
         self.assertIn('help', self.stdout.getvalue())
+        self.assertEqual(cm.exception.code, 0)
+
+    def test_main_prints_version_to_stdout_and_exits_with_zero_when_requested(self):
+        with self.assertRaises(SystemExit) as cm:
+            main(['git-edit-index', '--version'])
+        # Python < 3.4 emits the version to stderr, Python >= 3.4 to stdout.
+        output = self.stdout.getvalue() + self.stderr.getvalue()
+        self.assertIn(__version__, output)
         self.assertEqual(cm.exception.code, 0)
 
     def test_main_exits_with_non_zero_return_code_when_invalid_parameter_is_given(self):

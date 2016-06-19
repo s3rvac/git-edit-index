@@ -40,6 +40,9 @@ import sys
 import tempfile
 
 
+__version__ = '0.4-dev'
+
+
 class Index(list):
     """Representation of a git index.
 
@@ -261,6 +264,11 @@ def parse_args(argv):
         description=("""
             Opens an editor to stage or unstage files in a git repository.
         """)
+    )
+    parser.add_argument(
+        '-V', '--version',
+        action='version',
+        version='%(prog)s {}'.format(__version__)
     )
     parser.parse_args(argv)
 
