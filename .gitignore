@@ -6,6 +6,10 @@ __pycache__
 /.coverage
 /coverage
 
+# Tox
+/.tox
+/git_edit_index.egg-info
+
 # Virtual environments
 /venv
 /virtualenv
