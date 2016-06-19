@@ -96,7 +96,8 @@ Limitations
   * `M`: Modified file (not staged).
   * `?`: Untracked file.
 
-* Staging of files during merge conflicts is currently not supported.
+* Working with renamed files (status `R`), copied files (status `C`), and files
+  with merge conflicts (status `U`) is currently not supported.
 
 License
 -------
