@@ -174,8 +174,8 @@ def edit_index(index):
 
     The original index is not modified.
     """
-    # We need to use a temporary directory to store the current index and show
-    # it to the user in an editor.
+    # We need to use a temporary file to store the current index and show it to
+    # the user in an editor.
     with tempfile.NamedTemporaryFile(mode='r+', prefix='git-edit-index-') as f:
         f.write(str(index))
         f.flush()
