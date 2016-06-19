@@ -48,6 +48,7 @@ from git_edit_index import IndexEntry
 from git_edit_index import NoIndexEntry
 from git_edit_index import __version__
 from git_edit_index import current_index
+from git_edit_index import edit_index
 from git_edit_index import editor_cmd
 from git_edit_index import git_status
 from git_edit_index import main
@@ -263,6 +264,43 @@ class GitStatusTests(unittest.TestCase, WithPatching):
             ['git', 'status', '--porcelain', '-z'],
             universal_newlines=True
         )
+
+
+class EditIndexTests(unittest.TestCase, WithPatching):
+    """Tests for `edit_index()`."""
+
+    def setUp(self):
+        super(EditIndexTests, self).setUp()
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+        self.tempfile = mock.MagicMock()
+        self.patch('git_edit_index.tempfile', self.tempfile)
+
+        self.editor_cmd = mock.Mock()
+        self.patch('git_edit_index.editor_cmd', self.editor_cmd)
+
+    def test_stores_index_to_file_and_shows_it_to_user_and_returns_new_index(self):
+        index = Index([IndexEntry('M', 'file.txt')])
+        tmp_file = mock.Mock()
+        tmp_file.name = 'git-edit-index-temp'
+        tmp_file.read.return_value = 'A file.txt'
+        self.editor_cmd.return_value = ['vim']
+        self.tempfile.NamedTemporaryFile().__enter__.return_value = tmp_file
+
+        new_index = edit_index(index)
+
+        tmp_file.write.assert_called_once_with('M file.txt\n')
+        tmp_file.flush.assert_called_once_with()
+        tmp_file.seek.assert_called_once_with(0)
+        tmp_file.write.assert_called_once_with('M file.txt\n')
+        self.subprocess.call.assert_called_once_with(
+            self.editor_cmd() + [tmp_file.name]
+        )
+        self.assertEqual(len(new_index), 1)
+        self.assertEqual(new_index[0].status, 'A')
+        self.assertEqual(new_index[0].file, 'file.txt')
 
 
 class EditorCmdTests(unittest.TestCase, WithPatching):
