@@ -47,6 +47,7 @@ from git_edit_index import Index
 from git_edit_index import IndexEntry
 from git_edit_index import NoIndexEntry
 from git_edit_index import __version__
+from git_edit_index import current_index
 from git_edit_index import editor_cmd
 from git_edit_index import git_status
 from git_edit_index import main
@@ -206,6 +207,25 @@ class NoIndexEntryTests(unittest.TestCase):
         entry = NoIndexEntry('file.txt')
 
         self.assertEqual(str(entry), '- file.txt')
+
+
+class CurrentIndexTests(unittest.TestCase, WithPatching):
+    """Tests for `current_index()`."""
+
+    def setUp(self):
+        super(CurrentIndexTests, self).setUp()
+
+        self.git_status = mock.Mock()
+        self.patch('git_edit_index.git_status', self.git_status)
+
+    def test_creates_index_from_git_status(self):
+        self.git_status.return_value = 'M file1\0M file2\0'
+
+        index = current_index()
+
+        self.assertEqual(len(index), 2)
+        self.assertEqual(index[0].file, 'file1')
+        self.assertEqual(index[1].file, 'file2')
 
 
 class GitStatusTests(unittest.TestCase, WithPatching):
