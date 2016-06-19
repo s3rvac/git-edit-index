@@ -92,6 +92,7 @@ Limitations
 * Only the following statuses are currently supported:
 
   * `A`: Added file (staged).
+  * `D`: Deleted file (not staged).
   * `M`: Modified file (not staged).
   * `?`: Untracked file.
 
