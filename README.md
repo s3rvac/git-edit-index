@@ -41,11 +41,13 @@ Run `git edit-index` to display an editor with the current index. In it, you
 can stage or unstage files from the index simply by changing their status:
 
 * To stage a modified or deleted file, change its status from `M` or `D` to
-  `A`. This runs `git add FILE`.
+  `A`. This runs `git add FILE`. If you use `P` instead of `A`, it will run
+  `git add --patch FILE` instead.
 * To unstage a modified file, change its status from `A` to `M`. This runs `git
   reset FILE`.
 * To unstage a deleted file, change its status from `A` to `D`. This also runs
-  `git reset FILE`.
+  `git reset FILE`. If you use `P` instead of `D`, it will run `git reset
+  --patch FILE` instead.
 * To add an untracked file, change its status from `?` to `A`. This runs `git
   add FILE`.
 * To stop tracking of a file, change its status to `?`. This runs `git rm

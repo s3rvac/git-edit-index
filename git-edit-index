@@ -100,6 +100,11 @@ class IndexEntry(object):
         #      D FILE    | D FILE     | deleted file
         #     ?? FILE    | ? FILE     | untracked file
         #
+        # The script also supports the following custom status that is not
+        # present in git:
+        #
+        #        -       | P FILE     | use --patch with add/reset
+        #
         m = re.match(r'(.{2} ?)(.+)', line)
         if m is None:
             return None
@@ -114,6 +119,8 @@ class IndexEntry(object):
             return cls('D', file)
         elif re.match(r'\?', status):
             return cls('?', file)
+        elif re.match(r'P', status):
+            return cls('P', file)
 
         return None
 
@@ -236,6 +243,16 @@ def reflect_index_change(orig_entry, new_entry):
         perform_git_action('reset', new_entry.file)
     elif new_entry.status == '?':
         perform_git_action(['rm', '--cached'], new_entry.file)
+    # 'P' is a custom status that is not present in git. It signalizes that
+    # add/reset with --patch should be used.
+    elif new_entry.status == 'P':
+        # Do not ignore stdout because --patch needs it to print the hunks.
+        if orig_entry.status == 'A':
+            perform_git_action(['reset', '--patch'], new_entry.file,
+                               ignore_stdout=False)
+        elif orig_entry.status in ['D', 'M']:
+            perform_git_action(['add', '--patch'], new_entry.file,
+                               ignore_stdout=False)
 
 
 def full_path_to(file):

@@ -4,6 +4,8 @@ Changelog
 dev
 ---
 
+* FEA: Changing file status from `M` or `D` to `P` runs `git add --patch FILE`.
+* FEA: Changing file status from `D` to `P` runs `git reset --patch FILE`.
 * FIX: Fixed unit tests under Python 2 and PyPy.
 
 0.3.2 (2015-10-09)

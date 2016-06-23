@@ -184,6 +184,12 @@ class IndexEntryTests(unittest.TestCase):
         self.assertEqual(entry.status, '?')
         self.assertEqual(entry.file, 'file.txt')
 
+    def test_from_line_returns_correct_entry_for_custom_patch_status(self):
+        entry = IndexEntry.from_line('P file.txt')
+
+        self.assertEqual(entry.status, 'P')
+        self.assertEqual(entry.file, 'file.txt')
+
     def test_from_line_ignores_case_of_status(self):
         entry = IndexEntry.from_line('a file.txt')
 
@@ -385,6 +391,18 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         self.perform_git_action.assert_called_once_with('add', 'file.txt')
 
+    def test_performs_correct_action_when_modified_file_is_to_be_partially_added(self):
+        orig_entry = IndexEntry('M', 'file.txt')
+        new_entry = IndexEntry('P', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with(
+            ['add', '--patch'],
+            'file.txt',
+            ignore_stdout=False
+        )
+
     def test_performs_correct_action_when_deleted_file_is_to_be_added(self):
         orig_entry = IndexEntry('D', 'file.txt')
         new_entry = IndexEntry('A', 'file.txt')
@@ -392,6 +410,18 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
         reflect_index_change(orig_entry, new_entry)
 
         self.perform_git_action.assert_called_once_with('add', 'file.txt')
+
+    def test_performs_correct_action_when_deleted_file_is_to_be_partially_added(self):
+        orig_entry = IndexEntry('D', 'file.txt')
+        new_entry = IndexEntry('P', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with(
+            ['add', '--patch'],
+            'file.txt',
+            ignore_stdout=False
+        )
 
     def test_performs_correct_action_when_modified_staged_file_is_to_be_unstaged(self):
         orig_entry = IndexEntry('A', 'file.txt')
@@ -408,6 +438,18 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
         reflect_index_change(orig_entry, new_entry)
 
         self.perform_git_action.assert_called_once_with('reset', 'file.txt')
+
+    def test_performs_correct_action_when_modified_staged_file_is_to_be_partially_reset(self):
+        orig_entry = IndexEntry('A', 'file.txt')
+        new_entry = IndexEntry('P', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with(
+            ['reset', '--patch'],
+            'file.txt',
+            ignore_stdout=False
+        )
 
     def test_performs_correct_action_when_modified_file_is_to_be_reset(self):
         orig_entry = IndexEntry('M', 'file.txt')
