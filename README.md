@@ -38,7 +38,9 @@ Index](https://pypi.python.org/pypi/git-edit-index) (PyPI) with
     $ pip install git-edit-index
 
 or install it manually by performing the following two steps:
-* Put the `git-edit-index` script to a directory that is in your `$PATH`.
+* Put the
+  [`git-edit-index`](https://raw.githubusercontent.com/s3rvac/git-edit-index/master/git-edit-index)
+  script to a directory that is in your `$PATH`.
 * Ensure that the script is executable (`chmod a+x git-edit-index`).
 
 Usage
