@@ -40,7 +40,7 @@ import sys
 import tempfile
 
 
-__version__ = '0.4-dev'
+__version__ = '0.4'
 
 
 class Index(list):

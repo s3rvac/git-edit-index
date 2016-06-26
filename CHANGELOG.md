@@ -4,6 +4,11 @@ Changelog
 dev
 ---
 
+* -
+
+0.4 (2016-06-26)
+----------------
+
 * FEA: Changing file status from `M` or `D` to `P` runs `git add --patch FILE`.
 * FEA: Changing file status from `D` to `P` runs `git reset --patch FILE`.
 * FEA: Added the script to PyPI so it can be installed via `pip install
