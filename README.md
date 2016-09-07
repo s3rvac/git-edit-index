@@ -8,6 +8,8 @@ This command represents a faster alternative to `git add -i` or `git gui`. It
 allows you to stage or unstage files from the index in an editor, just like
 when you perform an interactive rebase.
 
+![Screencast](resources/screencast.gif "git-edit-index in action")
+
 For example, lets assume you have the following three modified files (`git
 status --short`):
 
