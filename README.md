@@ -24,6 +24,9 @@ To stage (add) the first two files, simply change the text to
     A another/path/to/file2
     M yet/another/path/to/file3
 
+You can also unstage (`reset`) files, add only parts of files (`add -p`), or
+delete files (`rm`).
+
 Requirements
 ------------
 
