@@ -3,6 +3,7 @@ git-edit-index
 
 [![Build Status](https://travis-ci.org/s3rvac/git-edit-index.svg?branch=master)](https://travis-ci.org/s3rvac/git-edit-index)
 [![Coverage Status](https://coveralls.io/repos/github/s3rvac/git-edit-index/badge.svg?branch=master)](https://coveralls.io/github/s3rvac/git-edit-index?branch=master)
+[![PyPI Version](https://badge.fury.io/py/git-edit-index.svg)](https://pypi.python.org/pypi/git-edit-index)
 
 This command represents a faster alternative to `git add -i` or `git gui`. It
 allows you to stage or unstage files from the index in an editor, just like
