@@ -116,7 +116,7 @@ class IndexTests(unittest.TestCase):
             IndexEntry('?', 'file2.txt')
         ])
 
-        # The last entry has to end with a newline (otherwise, some editors may
+        # The last entry has to end with a newline. Otherwise, some editors may
         # have problems displaying it.
         self.assertEqual(str(index), 'M file1.txt\n? file2.txt\n')
 
