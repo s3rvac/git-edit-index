@@ -65,14 +65,14 @@ class WithPatching:
     """Mixin for tests that perform patching during their setup."""
 
     def patch(self, what, with_what):
-        """Patches `what` with `with_what`."""
+        """Patches what with with_what."""
         patcher = mock.patch(what, with_what)
         patcher.start()
         self.addCleanup(patcher.stop)
 
 
 class IndexTests(unittest.TestCase):
-    """Tests for `Index`."""
+    """Tests for Index."""
 
     def test_entry_for_returns_no_index_entry_when_there_is_no_entry(self):
         index = Index()
@@ -122,7 +122,7 @@ class IndexTests(unittest.TestCase):
 
 
 class IndexEntryTests(unittest.TestCase):
-    """Tests for `IndexEntry`."""
+    """Tests for IndexEntry."""
 
     def test_status_and_file_are_accessible_after_creation(self):
         entry = IndexEntry('M', 'file.txt')
@@ -208,7 +208,7 @@ class IndexEntryTests(unittest.TestCase):
 
 
 class NoIndexEntryTests(unittest.TestCase):
-    """Tests for `NoIndexEntry`."""
+    """Tests for NoIndexEntry."""
 
     def test_status_is_always_none(self):
         entry = NoIndexEntry('file.txt')
@@ -232,7 +232,7 @@ class NoIndexEntryTests(unittest.TestCase):
 
 
 class CurrentIndexTests(unittest.TestCase, WithPatching):
-    """Tests for `current_index()`."""
+    """Tests for current_index()."""
 
     def setUp(self):
         super(CurrentIndexTests, self).setUp()
@@ -251,7 +251,7 @@ class CurrentIndexTests(unittest.TestCase, WithPatching):
 
 
 class GitStatusTests(unittest.TestCase, WithPatching):
-    """Tests for `git_status()`."""
+    """Tests for git_status()."""
 
     def setUp(self):
         super(GitStatusTests, self).setUp()
@@ -273,7 +273,7 @@ class GitStatusTests(unittest.TestCase, WithPatching):
 
 
 class EditIndexTests(unittest.TestCase, WithPatching):
-    """Tests for `edit_index()`."""
+    """Tests for edit_index()."""
 
     def setUp(self):
         super(EditIndexTests, self).setUp()
@@ -310,7 +310,7 @@ class EditIndexTests(unittest.TestCase, WithPatching):
 
 
 class EditorCmdTests(unittest.TestCase, WithPatching):
-    """Tests for `editor_cmd()`."""
+    """Tests for editor_cmd()."""
 
     def setUp(self):
         super(EditorCmdTests, self).setUp()
@@ -334,7 +334,7 @@ class EditorCmdTests(unittest.TestCase, WithPatching):
 
 
 class ReflectIndexChangesTests(unittest.TestCase, WithPatching):
-    """Tests for `reflect_index_changes()`."""
+    """Tests for reflect_index_changes()."""
 
     def setUp(self):
         super(ReflectIndexChangesTests, self).setUp()
@@ -355,7 +355,7 @@ class ReflectIndexChangesTests(unittest.TestCase, WithPatching):
 
 
 class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
-    """Tests for `reflect_index_change()`."""
+    """Tests for reflect_index_change()."""
 
     def setUp(self):
         super(ReflectIndexChangeTests, self).setUp()
@@ -490,7 +490,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
 
 class RemoveTests(unittest.TestCase, WithPatching):
-    """Tests for `remove()`."""
+    """Tests for remove()."""
 
     def setUp(self):
         super(RemoveTests, self).setUp()
@@ -525,7 +525,7 @@ class RemoveTests(unittest.TestCase, WithPatching):
 
 
 class PerformGitActionTests(unittest.TestCase, WithPatching):
-    """Tests for `perform_git_action()`."""
+    """Tests for perform_git_action()."""
 
     def setUp(self):
         super(PerformGitActionTests, self).setUp()
@@ -582,7 +582,7 @@ class PerformGitActionTests(unittest.TestCase, WithPatching):
 
 
 class RepositoryPathTests(unittest.TestCase, WithPatching):
-    """Tests for `repository_path()`."""
+    """Tests for repository_path()."""
 
     def setUp(self):
         super(RepositoryPathTests, self).setUp()
@@ -606,7 +606,7 @@ class RepositoryPathTests(unittest.TestCase, WithPatching):
 
 
 class MainTests(unittest.TestCase, WithPatching):
-    """Tests for `main()` and `parse_args()`."""
+    """Tests for main() and parse_args()."""
 
     def setUp(self):
         super(MainTests, self).setUp()
