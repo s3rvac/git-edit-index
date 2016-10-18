@@ -323,4 +323,14 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except subprocess.CalledProcessError as ex:
+        # An external command (e.g. git) failed. For example, this may happen
+        # when `git edit-index` is run outside of a git repository. In such a
+        # case, simply exit the script because we assume that the failed
+        # command has printed an error to stderr. For example, when git fails,
+        # it prints an error to stderr. It would be pointless to show the
+        # backtrace to the user because that would only clutter the screen,
+        # thus making the real error less apparent.
+        sys.exit(ex.returncode)

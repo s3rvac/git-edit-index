@@ -4,7 +4,9 @@ Changelog
 dev
 ---
 
-* -
+* FIX: Do not print a backtrace when an external command (e.g. `git`) fails.
+  That only clutters the screen, thus making the real error printed by the
+  external command less apparent.
 
 0.4 (2016-06-26)
 ----------------
