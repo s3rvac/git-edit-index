@@ -39,6 +39,14 @@ import subprocess
 import sys
 import tempfile
 
+try:
+    # Make mocking of 'git_edit_index.input' working in unit tests in all
+    # Python versions. More specifically, the following import is needed on
+    # Python 3.4.
+    from builtins import input
+except ImportError:
+    pass
+
 
 __version__ = '0.5 (dev)'
 
@@ -294,6 +302,60 @@ def repository_path():
     return path.strip()
 
 
+def should_reflect_changes_on_empty_buffer():
+    """Should we reflect changes when the editor buffer is empty?"""
+    OPTION = 'git-edit-index.onEmptyBuffer'
+    on_empty_buffer = value_for_config_option(OPTION)
+    if on_empty_buffer == 'act':
+        return True
+    elif on_empty_buffer == 'nothing':
+        return False
+    elif on_empty_buffer == 'ask' or on_empty_buffer is None:
+        return ask_user_whether_reflect_changes_on_empty_buffer()
+
+    handle_unsupported_config_option_value(OPTION, on_empty_buffer)
+
+
+def ask_user_whether_reflect_changes_on_empty_buffer():
+    """Asks the user whether changes should be reflected when the editor buffer
+    is empty.
+    """
+    answer = input(
+        'The buffer is empty. Should the changes be reflected (y/N)? '
+    )
+    return answer.lower() == 'y'
+
+
+def handle_unsupported_config_option_value(option, value):
+    """Handles a situation when the given value of the given option is
+    unsupported.
+    """
+    # React in the same way as git reacts when it encounters an invalid value.
+    error_msg = 'error: unsupported config value {!r} for {!r}\n'.format(
+        value,
+        option
+    )
+    sys.stderr.write(error_msg)
+    sys.exit(1)
+
+
+def value_for_config_option(option):
+    """Returns the value of the given config option.
+
+    If there is no value for the given option, None is returned.
+    """
+    try:
+        value = subprocess.check_output(
+            ['git', 'config', option],
+            universal_newlines=True
+        )
+        return value.strip()
+    except subprocess.CalledProcessError:
+        # The given option does not exist (`git config` ends with a non-zero
+        # return code in such a case).
+        return None
+
+
 def parse_args(argv):
     """Parses the given argument list."""
     parser = argparse.ArgumentParser(
@@ -319,6 +381,10 @@ def main(argv):
         return
 
     new_index = edit_index(orig_index)
+    if not new_index:
+        if not should_reflect_changes_on_empty_buffer():
+            return
+
     reflect_index_changes(orig_index, new_index)
 
 

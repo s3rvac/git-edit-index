@@ -4,6 +4,12 @@ Changelog
 dev
 ---
 
+* FEA: When the editor buffer is empty (i.e. all lines were deleted), the
+  command now asks the user whether he or she wants to reflect the changes
+  ([#1](https://github.com/s3rvac/git-edit-index/issues/1)). This makes the
+  deletion of files or changes more foolproof. The default behavior can be
+  changed by setting the `onEmptyBuffer` config option (see the `README` file
+  for more details).
 * FIX: Do not print a backtrace when an external command (e.g. `git`) fails.
   That only clutters the screen, thus making the real error printed by the
   external command less apparent.

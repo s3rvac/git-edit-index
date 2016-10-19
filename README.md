@@ -103,6 +103,26 @@ alias](https://git-scm.com/book/tr/v2/Git-Basics-Git-Aliases):
 
 Then, all you have to do is to type <code>git ei</code>.
 
+Configuration Options
+---------------------
+
+The command supports the following configuration options via [Git's
+configuration
+system](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration).
+
+### git-edit-index.onEmptyBuffer [ask|act|nothing]
+
+What should be done when the editor buffer is empty (i.e. all lines were
+deleted). Possible values:
+* `ask`: Ask the user by showing him or her a `y/N` prompt. This is the default
+  behavior of the command since version `0.5`.
+* `act`: Reflect the changes, without asking. This was the default behavior of
+  the command until version `0.5`.
+* `nothing`: Do not reflect any changes, without asking. This corresponds to
+  the default behavior of many other Git commands.
+
+Default: **ask**.
+
 Limitations
 -----------
 

@@ -47,6 +47,7 @@ from git_edit_index import Index
 from git_edit_index import IndexEntry
 from git_edit_index import NoIndexEntry
 from git_edit_index import __version__
+from git_edit_index import ask_user_whether_reflect_changes_on_empty_buffer
 from git_edit_index import current_index
 from git_edit_index import edit_index
 from git_edit_index import editor_cmd
@@ -57,6 +58,8 @@ from git_edit_index import reflect_index_change
 from git_edit_index import reflect_index_changes
 from git_edit_index import remove
 from git_edit_index import repository_path
+from git_edit_index import should_reflect_changes_on_empty_buffer
+from git_edit_index import value_for_config_option
 
 
 # Do not inherit from unittest.TestCase because WithPatching is a mixin, not a
@@ -605,6 +608,119 @@ class RepositoryPathTests(unittest.TestCase, WithPatching):
         )
 
 
+class ShouldReflectChangesOnEmptyBufferTests(unittest.TestCase, WithPatching):
+    """Tests for `should_reflect_changes_on_empty_buffer()`."""
+
+    def setUp(self):
+        super(ShouldReflectChangesOnEmptyBufferTests, self).setUp()
+
+        self.stderr = StringIO()
+        self.patch('sys.stderr', self.stderr)
+
+        self.value_for_config_option = mock.Mock()
+        self.patch(
+            'git_edit_index.value_for_config_option',
+            self.value_for_config_option
+        )
+
+        self.ask_user_whether_reflect_changes_on_empty_buffer = mock.Mock()
+        self.patch(
+            'git_edit_index.ask_user_whether_reflect_changes_on_empty_buffer',
+            self.ask_user_whether_reflect_changes_on_empty_buffer
+        )
+
+    def test_returns_true_when_config_option_is_set_to_act(self):
+        self.value_for_config_option.return_value = 'act'
+
+        self.assertTrue(should_reflect_changes_on_empty_buffer())
+
+    def test_returns_false_when_config_option_is_set_to_nothing(self):
+        self.value_for_config_option.return_value = 'nothing'
+
+        self.assertFalse(should_reflect_changes_on_empty_buffer())
+
+    def test_asks_user_when_config_option_is_set_to_ask(self):
+        self.ask_user_whether_reflect_changes_on_empty_buffer.return_value = True
+        self.value_for_config_option.return_value = 'ask'
+
+        self.assertTrue(should_reflect_changes_on_empty_buffer())
+        self.assertTrue(self.ask_user_whether_reflect_changes_on_empty_buffer.called)
+
+    def test_returns_asks_user_when_config_option_is_not_set(self):
+        self.ask_user_whether_reflect_changes_on_empty_buffer.return_value = True
+        self.value_for_config_option.return_value = None
+
+        self.assertTrue(should_reflect_changes_on_empty_buffer())
+        self.assertTrue(self.ask_user_whether_reflect_changes_on_empty_buffer.called)
+
+    def test_prints_error_and_exits_when_config_option_is_set_to_unsupported_value(self):
+        self.value_for_config_option.return_value = 'xxx'
+
+        with self.assertRaises(SystemExit) as cm:
+            should_reflect_changes_on_empty_buffer()
+        self.assertIn('xxx', self.stderr.getvalue())
+        self.assertEqual(cm.exception.code, 1)
+
+
+class AskUserWhetherReflectChangesOnEmptyBufferTests(unittest.TestCase, WithPatching):
+    """Tests for `ask_user_whether_reflect_changes_on_empty_buffer()`."""
+
+    def setUp(self):
+        super(AskUserWhetherReflectChangesOnEmptyBufferTests, self).setUp()
+
+        self.input = mock.Mock()
+        self.patch('git_edit_index.input', self.input)
+
+    def test_asks_user_and_returns_true_when_user_answered_lowercase_y(self):
+        self.input.return_value = 'y'
+
+        self.assertTrue(ask_user_whether_reflect_changes_on_empty_buffer())
+
+    def test_asks_user_and_returns_true_when_user_answered_uppercase_y(self):
+        self.input.return_value = 'Y'
+
+        self.assertTrue(ask_user_whether_reflect_changes_on_empty_buffer())
+
+    def test_asks_user_and_returns_false_when_user_answered_n(self):
+        self.input.return_value = 'n'
+
+        self.assertFalse(ask_user_whether_reflect_changes_on_empty_buffer())
+
+    def test_asks_user_and_returns_false_when_user_answered_enter(self):
+        self.input.return_value = ''
+
+        self.assertFalse(ask_user_whether_reflect_changes_on_empty_buffer())
+
+
+class ValueForConfigOptionTests(unittest.TestCase, WithPatching):
+    """Tests for `value_for_config_option()`."""
+
+    def setUp(self):
+        super(ValueForConfigOptionTests, self).setUp()
+
+        self.subprocess = mock.Mock()
+        self.patch('git_edit_index.subprocess', self.subprocess)
+
+    def test_runs_correct_command_and_returns_its_output(self):
+        self.subprocess.check_output.return_value = 'value\n'
+
+        value = value_for_config_option('section.option')
+
+        self.assertEqual(value, 'value')
+        self.subprocess.check_output.assert_called_once_with(
+            ['git', 'config', 'section.option'],
+            universal_newlines=True
+        )
+
+    def test_returns_none_when_there_is_no_value_for_option(self):
+        self.subprocess.CalledProcessError = RuntimeError
+        self.subprocess.check_output.side_effect = self.subprocess.CalledProcessError
+
+        value = value_for_config_option('section.option')
+
+        self.assertIsNone(value)
+
+
 class MainTests(unittest.TestCase, WithPatching):
     """Tests for main() and parse_args()."""
 
@@ -622,6 +738,12 @@ class MainTests(unittest.TestCase, WithPatching):
 
         self.edit_index = mock.Mock()
         self.patch('git_edit_index.edit_index', self.edit_index)
+
+        self.should_reflect_changes_on_empty_buffer = mock.Mock()
+        self.patch(
+            'git_edit_index.should_reflect_changes_on_empty_buffer',
+            self.should_reflect_changes_on_empty_buffer
+        )
 
         self.reflect_index_changes = mock.Mock()
         self.patch('git_edit_index.reflect_index_changes', self.reflect_index_changes)
@@ -656,6 +778,26 @@ class MainTests(unittest.TestCase, WithPatching):
         self.reflect_index_changes.assert_called_once_with(
             orig_index, self.edit_index.return_value
         )
+
+    def test_reflects_changes_when_changes_should_be_reflected_on_empty_buffer(self):
+        self.current_index.return_value = Index([IndexEntry('M', 'file.txt')])
+        self.edit_index.return_value = Index()
+        self.should_reflect_changes_on_empty_buffer.return_value = True
+
+        main(['git-edit-index'])
+
+        self.assertTrue(self.should_reflect_changes_on_empty_buffer.called)
+        self.assertTrue(self.reflect_index_changes.called)
+
+    def test_does_not_reflect_changes_when_changes_should_not_be_reflected_on_empty_buffer(self):
+        self.current_index.return_value = Index([IndexEntry('M', 'file.txt')])
+        self.edit_index.return_value = Index()
+        self.should_reflect_changes_on_empty_buffer.return_value = False
+
+        main(['git-edit-index'])
+
+        self.assertTrue(self.should_reflect_changes_on_empty_buffer.called)
+        self.assertFalse(self.reflect_index_changes.called)
 
     def test_does_not_show_editor_to_user_when_index_is_empty(self):
         self.current_index.return_value = Index()
