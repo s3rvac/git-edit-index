@@ -39,12 +39,15 @@ import subprocess
 import sys
 import tempfile
 
+# Make mocking of 'git_edit_index.input' working in unit tests in all Python
+# versions.
 try:
-    # Make mocking of 'git_edit_index.input' working in unit tests in all
-    # Python versions.
     from __builtin__ import input
 except ImportError:
-    pass
+    try:
+        from builtins import input
+    except ImportError:
+        pass
 
 
 __version__ = '0.5 (dev)'
