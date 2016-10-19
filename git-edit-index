@@ -41,9 +41,8 @@ import tempfile
 
 try:
     # Make mocking of 'git_edit_index.input' working in unit tests in all
-    # Python versions. More specifically, the following import is needed on
-    # Python 3.4.
-    from builtins import input
+    # Python versions.
+    from __builtin__ import input
 except ImportError:
     pass
 
