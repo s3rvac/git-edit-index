@@ -322,9 +322,7 @@ def ask_user_whether_reflect_changes_on_empty_buffer():
     """Asks the user whether changes should be reflected when the editor buffer
     is empty.
     """
-    answer = input(
-        'The buffer is empty. Should the changes be reflected (y/N)? '
-    )
+    answer = input('The buffer is empty. Apply the changes? [y/N] ')
     return answer.lower() == 'y'
 
 
