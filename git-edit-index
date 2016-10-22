@@ -39,15 +39,16 @@ import subprocess
 import sys
 import tempfile
 
-# Make mocking of 'git_edit_index.input' working in unit tests in all Python
-# versions.
+# In Python 2.x, we have to use raw_input() instead of input() because the
+# latter evaluates the entered string while the former just returns it. In
+# Python 3.x, raw_input() was renamed to input() and the evaluating version was
+# removed.
 try:
-    from __builtin__ import input
+    from __builtin__ import raw_input as input
 except ImportError:
-    try:
-        from builtins import input
-    except ImportError:
-        pass
+    # Import input() even in Python 3.x to make the mocking of
+    # 'git_edit_index.input' in unit tests working.
+    from builtins import input
 
 
 __version__ = '0.5 (dev)'
