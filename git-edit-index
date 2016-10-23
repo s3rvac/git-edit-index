@@ -51,7 +51,7 @@ except ImportError:
     from builtins import input
 
 
-__version__ = '0.5 (dev)'
+__version__ = '0.5'
 
 
 class Index(list):

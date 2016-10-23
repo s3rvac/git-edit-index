@@ -4,6 +4,11 @@ Changelog
 dev
 ---
 
+* -
+
+0.5 (2016-10-23)
+----------------
+
 * FEA: When the editor buffer is empty (i.e. all lines were deleted), the
   command now asks the user whether he or she wants to reflect the changes
   ([#1](https://github.com/s3rvac/git-edit-index/issues/1)). This makes the
