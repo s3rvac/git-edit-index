@@ -67,9 +67,9 @@ from git_edit_index import value_for_config_option
 class WithPatching:
     """Mixin for tests that perform patching during their setup."""
 
-    def patch(self, what, with_what):
+    def patch(self, what, with_what, create=False):
         """Patches what with with_what."""
-        patcher = mock.patch(what, with_what)
+        patcher = mock.patch(what, with_what, create=create)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -281,35 +281,45 @@ class EditIndexTests(unittest.TestCase, WithPatching):
     def setUp(self):
         super(EditIndexTests, self).setUp()
 
+        self.os = mock.MagicMock()
+        self.patch('git_edit_index.os', self.os)
+
         self.subprocess = mock.Mock()
         self.patch('git_edit_index.subprocess', self.subprocess)
 
         self.tempfile = mock.MagicMock()
         self.patch('git_edit_index.tempfile', self.tempfile)
 
+        self.open = mock.MagicMock()
+        # We need to create the mock in this case as 'open' is not available in
+        # the 'git_edit_index' module in e.g. Python 3.4 (it gets loaded from
+        # the 'builtins' module).
+        self.patch('git_edit_index.open', self.open, create=True)
+
         self.editor_cmd = mock.Mock()
         self.patch('git_edit_index.editor_cmd', self.editor_cmd)
 
     def test_stores_index_to_file_and_shows_it_to_user_and_returns_new_index(self):
         index = Index([IndexEntry('M', 'file.txt')])
-        tmp_file = mock.Mock()
-        tmp_file.name = 'git-edit-index-temp'
-        tmp_file.read.return_value = 'A file.txt'
         self.editor_cmd.return_value = ['vim']
-        self.tempfile.NamedTemporaryFile().__enter__.return_value = tmp_file
+        tmp_fd = 123
+        tmp_path = 'git-edit-index-temp'
+        self.tempfile.mkstemp.return_value = tmp_fd, tmp_path
+        tmp_f1 = self.os.fdopen.return_value.__enter__.return_value
+        tmp_f2 = self.open.return_value.__enter__.return_value
+        tmp_f2.read.return_value = 'A file.txt\n'
 
         new_index = edit_index(index)
 
-        tmp_file.write.assert_called_once_with('M file.txt\n')
-        tmp_file.flush.assert_called_once_with()
-        tmp_file.seek.assert_called_once_with(0)
-        tmp_file.write.assert_called_once_with('M file.txt\n')
-        self.subprocess.call.assert_called_once_with(
-            self.editor_cmd() + [tmp_file.name]
-        )
         self.assertEqual(len(new_index), 1)
         self.assertEqual(new_index[0].status, 'A')
         self.assertEqual(new_index[0].file, 'file.txt')
+        tmp_f1.write.assert_called_once_with('M file.txt\n')
+        self.subprocess.call.assert_called_once_with(
+            self.editor_cmd() + [tmp_path]
+        )
+        tmp_f2.read.assert_called_once_with()
+        self.os.remove.assert_called_once_with(tmp_path)
 
 
 class EditorCmdTests(unittest.TestCase, WithPatching):

@@ -194,12 +194,18 @@ def edit_index(index):
     """
     # We need to use a temporary file to store the current index and show it to
     # the user in an editor.
-    with tempfile.NamedTemporaryFile(mode='r+', prefix='git-edit-index-') as f:
-        f.write(str(index))
-        f.flush()
-        f.seek(0)
-        subprocess.call(editor_cmd() + [f.name])
-        return Index.from_text(f.read(), line_sep='\n')
+    tmp_fd, tmp_path = tempfile.mkstemp(prefix='git-edit-index-')
+    try:
+        # Due to file locking on Windows, we need to write the index and close
+        # the temporary file before we open the editor. Otherwise, the editor
+        # would not be able to read or change the file.
+        with os.fdopen(tmp_fd, mode='w') as f:
+            f.write(str(index))
+        subprocess.call(editor_cmd() + [tmp_path])
+        with open(tmp_path, mode='r') as f:
+            return Index.from_text(f.read(), line_sep='\n')
+    finally:
+        os.remove(tmp_path)
 
 
 def editor_cmd():
