@@ -4,7 +4,10 @@ Changelog
 dev
 ---
 
-* -
+* FIX: Fixed the opening of the editor on Windows. Due to file locking on
+  Windows, we need to write the index and close the temporary file before we
+  open the editor. Otherwise, the editor is not able to read or change the
+  file.
 
 0.5 (2016-10-23)
 ----------------
