@@ -199,7 +199,11 @@ def edit_index(index):
         # Due to file locking on Windows, we need to write the index and close
         # the temporary file before we open the editor. Otherwise, the editor
         # would not be able to read or change the file.
-        with os.fdopen(tmp_fd, mode='w') as f:
+        #
+        # In Python 2.7, os.fdopen() does not support passing 'mode' as a
+        # keyword argument (see #3), so we have to pass it as a positional
+        # argument.
+        with os.fdopen(tmp_fd, 'w') as f:
             f.write(str(index))
         subprocess.call(editor_cmd() + [tmp_path])
         with open(tmp_path, mode='r') as f:
