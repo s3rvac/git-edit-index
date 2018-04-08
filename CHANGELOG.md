@@ -4,6 +4,11 @@ Changelog
 dev
 ---
 
+* -
+
+0.5.2 (2018-04-08)
+------------------
+
 * FIX: Fixed `TypeError: fdopen() takes no keyword arguments` when running the
   command via Python 2.7
   ([#3](https://github.com/s3rvac/git-edit-index/issues/3)).
