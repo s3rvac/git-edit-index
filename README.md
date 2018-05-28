@@ -133,9 +133,13 @@ Limitations
   * `M`: Modified file (not staged).
   * `?`: Untracked file.
 
-* Working with renamed files (status `R`), copied files (status `C`), files
-  with merge conflicts (status `U`), and partially staged files (status `MM`)
-  is currently not supported.
+* Working with files having merge conflicts (status `U`,
+  [#5](https://github.com/s3rvac/git-edit-index/issues/5)), renamed files
+  (status `R`, [#6](https://github.com/s3rvac/git-edit-index/issues/6)), copied
+  files (status `C`, [#7](https://github.com/s3rvac/git-edit-index/issues/7)),
+  and partially staged files (status `MM`,
+  [#8](https://github.com/s3rvac/git-edit-index/issues/8)) is currently not
+  supported.
 
 License
 -------
