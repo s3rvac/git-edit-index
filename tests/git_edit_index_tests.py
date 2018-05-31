@@ -97,11 +97,13 @@ class IndexTests(unittest.TestCase):
         index = Index.from_text(
             'M file1.txt\n'
             '? file2.txt\n'
+            '! file3.txt\n'
         )
 
-        self.assertEqual(len(index), 2)
+        self.assertEqual(len(index), 3)
         self.assertEqual(index.entry_for('file1.txt').status, 'M')
         self.assertEqual(index.entry_for('file2.txt').status, '?')
+        self.assertEqual(index.entry_for('file3.txt').status, '!')
 
     def test_repr_returns_correct_representation(self):
         index = Index([IndexEntry('M', 'file1.txt')])
@@ -116,12 +118,13 @@ class IndexTests(unittest.TestCase):
     def test_str_returns_correct_representation_when_there_are_entries(self):
         index = Index([
             IndexEntry('M', 'file1.txt'),
-            IndexEntry('?', 'file2.txt')
+            IndexEntry('?', 'file2.txt'),
+            IndexEntry('!', 'file3.txt')
         ])
 
         # The last entry has to end with a newline. Otherwise, some editors may
         # have problems displaying it.
-        self.assertEqual(str(index), 'M file1.txt\n? file2.txt\n')
+        self.assertEqual(str(index), 'M file1.txt\n? file2.txt\n! file3.txt\n')
 
 
 class IndexEntryTests(unittest.TestCase):
@@ -185,6 +188,18 @@ class IndexEntryTests(unittest.TestCase):
         entry = IndexEntry.from_line('? file.txt')
 
         self.assertEqual(entry.status, '?')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_ignored_file_git_format(self):
+        entry = IndexEntry.from_line('!! file.txt')
+
+        self.assertEqual(entry.status, '!')
+        self.assertEqual(entry.file, 'file.txt')
+
+    def test_from_line_returns_correct_entry_for_ignored_file_our_format(self):
+        entry = IndexEntry.from_line('! file.txt')
+
+        self.assertEqual(entry.status, '!')
         self.assertEqual(entry.file, 'file.txt')
 
     def test_from_line_returns_correct_entry_for_custom_patch_status(self):
@@ -271,6 +286,18 @@ class GitStatusTests(unittest.TestCase, WithPatching):
         self.assertEqual(status, STATUS)
         self.subprocess.check_output.assert_called_once_with(
             ['git', 'status', '--porcelain', '-z'],
+            universal_newlines=True
+        )
+
+    def test_calls_correct_git_command_with_ignored_files(self):
+        STATUS = 'status'
+        self.subprocess.check_output.return_value = STATUS
+
+        status = git_status(True)
+
+        self.assertEqual(status, STATUS)
+        self.subprocess.check_output.assert_called_once_with(
+            ['git', 'status', '--porcelain', '-z', '--ignored'],
             universal_newlines=True
         )
 
@@ -389,6 +416,23 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
     def test_performs_correct_action_when_untracked_file_is_to_be_deleted(self):
         orig_entry = IndexEntry('?', 'file.txt')
+        new_entry = NoIndexEntry('file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.remove.assert_called_once_with('file.txt')
+        self.assertFalse(self.perform_git_action.called)
+
+    def test_performs_correct_action_when_ignored_file_is_to_be_added(self):
+        orig_entry = IndexEntry('!', 'file.txt')
+        new_entry = IndexEntry('A', 'file.txt')
+
+        reflect_index_change(orig_entry, new_entry)
+
+        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+
+    def test_performs_correct_action_when_ignored_file_is_to_be_deleted(self):
+        orig_entry = IndexEntry('!', 'file.txt')
         new_entry = NoIndexEntry('file.txt')
 
         reflect_index_change(orig_entry, new_entry)

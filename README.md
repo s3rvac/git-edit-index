@@ -132,6 +132,7 @@ Limitations
   * `D`: Deleted file (not staged).
   * `M`: Modified file (not staged).
   * `?`: Untracked file.
+  * `!`: Ignored file.
 
 * Working with files having merge conflicts (status `U`,
   [#5](https://github.com/s3rvac/git-edit-index/issues/5)), renamed files
