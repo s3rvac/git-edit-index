@@ -4,7 +4,8 @@ Changelog
 dev
 ---
 
-* -
+* DEL: Dropped official support for Python 3.2 and 3.3 as [they are
+  EOL](https://devguide.python.org/#branchstatus)).
 
 0.5.2 (2018-04-08)
 ------------------
