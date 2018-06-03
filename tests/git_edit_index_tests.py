@@ -293,11 +293,11 @@ class GitStatusTests(unittest.TestCase, WithPatching):
         STATUS = 'status'
         self.subprocess.check_output.return_value = STATUS
 
-        status = git_status(True)
+        status = git_status(show_ignored='traditional')
 
         self.assertEqual(status, STATUS)
         self.subprocess.check_output.assert_called_once_with(
-            ['git', 'status', '--porcelain', '-z', '--ignored'],
+            ['git', 'status', '--porcelain', '-z', '--ignored=traditional'],
             universal_newlines=True
         )
 
@@ -412,7 +412,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         reflect_index_change(orig_entry, new_entry)
 
-        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+        self.perform_git_action.assert_called_once_with(['add', '-f'], 'file.txt')
 
     def test_performs_correct_action_when_untracked_file_is_to_be_deleted(self):
         orig_entry = IndexEntry('?', 'file.txt')
@@ -429,7 +429,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         reflect_index_change(orig_entry, new_entry)
 
-        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+        self.perform_git_action.assert_called_once_with(['add', '-f'], 'file.txt')
 
     def test_performs_correct_action_when_ignored_file_is_to_be_deleted(self):
         orig_entry = IndexEntry('!', 'file.txt')
@@ -446,7 +446,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         reflect_index_change(orig_entry, new_entry)
 
-        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+        self.perform_git_action.assert_called_once_with(['add', '-f'], 'file.txt')
 
     def test_performs_correct_action_when_modified_file_is_to_be_partially_added(self):
         orig_entry = IndexEntry('M', 'file.txt')
@@ -466,7 +466,7 @@ class ReflectIndexChangeTests(unittest.TestCase, WithPatching):
 
         reflect_index_change(orig_entry, new_entry)
 
-        self.perform_git_action.assert_called_once_with('add', 'file.txt')
+        self.perform_git_action.assert_called_once_with(['add', '-f'], 'file.txt')
 
     def test_performs_correct_action_when_deleted_file_is_to_be_partially_added(self):
         orig_entry = IndexEntry('D', 'file.txt')

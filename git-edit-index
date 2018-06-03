@@ -131,7 +131,7 @@ class IndexEntry(object):
             return cls('D', file)
         elif re.match(r'\?', status):
             return cls('?', file)
-        elif re.match(r'\!', status):
+        elif re.match(r'!', status):
             return cls('!', file)
         elif re.match(r'P', status):
             return cls('P', file)
@@ -168,12 +168,12 @@ class NoIndexEntry(IndexEntry):
         return '- {}'.format(self.file)
 
 
-def current_index(show_ignored=False):
+def current_index(show_ignored=None):
     """Returns the current index of the git repository."""
-    return Index.from_text(git_status(show_ignored), line_sep='\0')
+    return Index.from_text(git_status(show_ignored=show_ignored), line_sep='\0')
 
 
-def git_status(show_ignored=False):
+def git_status(show_ignored=None):
     """Returns the current status of the git repository as text, where
     individual lines are separated by the null byte.
     """
@@ -185,7 +185,7 @@ def git_status(show_ignored=False):
     # details.
     cmd = ['git', 'status', '--porcelain', '-z']
     if show_ignored:
-        cmd.append('--ignored')
+        cmd.append('--ignored=' + show_ignored)
     return subprocess.check_output(cmd, universal_newlines=True)
 
 
@@ -262,7 +262,7 @@ def reflect_index_change(orig_entry, new_entry):
         elif orig_entry.status in ['?', '!']:
             remove(orig_entry.file)
     elif new_entry.status == 'A':
-        perform_git_action('add', new_entry.file)
+        perform_git_action(['add', '-f'], new_entry.file)
     elif new_entry.status in ['D', 'M']:
         perform_git_action('reset', new_entry.file)
     elif new_entry.status == '?':
@@ -384,7 +384,11 @@ def parse_args(argv):
     )
     parser.add_argument(
         '--ignored',
-        action='store_true'
+        nargs='?',
+        dest='ignored',
+        const='traditional',
+        choices=('traditional', 'no', 'matching'),
+        help='Show ignored files as well.'
     )
     return parser.parse_args(argv)
 
@@ -392,7 +396,7 @@ def parse_args(argv):
 def main(argv):
     args = parse_args(argv[1:])
 
-    orig_index = current_index(args.ignored)
+    orig_index = current_index(show_ignored=args.ignored)
     if not orig_index:
         # There is nothing in the index, so do not bother the user with an
         # empty editor.
