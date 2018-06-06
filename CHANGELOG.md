@@ -4,6 +4,9 @@ Changelog
 dev
 ---
 
+* FEA: Added support for staging untracked files
+  ([#9](https://github.com/s3rvac/git-edit-index/pull/9)). To show untracked
+  files, you need to run `git edit-index` with the `--ignored` parameter.
 * DEL: Dropped official support for Python 3.2 and 3.3 as [they are
   EOL](https://devguide.python.org/#branchstatus)).
 
