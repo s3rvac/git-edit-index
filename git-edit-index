@@ -110,6 +110,7 @@ class IndexEntry(object):
         #      M FILE    | M FILE     | modified file
         #      D FILE    | D FILE     | deleted file
         #     ?? FILE    | ? FILE     | untracked file
+        #     !! FILE    | ! FILE     | ignored file
         #
         # The script also supports the following custom status that is not
         # present in git:
@@ -130,6 +131,8 @@ class IndexEntry(object):
             return cls('D', file)
         elif re.match(r'\?', status):
             return cls('?', file)
+        elif re.match(r'!', status):
+            return cls('!', file)
         elif re.match(r'P', status):
             return cls('P', file)
 
@@ -165,25 +168,25 @@ class NoIndexEntry(IndexEntry):
         return '- {}'.format(self.file)
 
 
-def current_index():
+def current_index(show_ignored=None):
     """Returns the current index of the git repository."""
-    return Index.from_text(git_status(), line_sep='\0')
+    return Index.from_text(git_status(show_ignored=show_ignored), line_sep='\0')
 
 
-def git_status():
+def git_status(show_ignored=None):
     """Returns the current status of the git repository as text, where
     individual lines are separated by the null byte.
     """
-    return subprocess.check_output(
-        # Arguments --porcelain and -z are needed to make the output
-        # parsing-friendly. They (1) cause paths to be shown relatively from
-        # the repository's root (thus disregarding user's preferences), (2) use
-        # the null byte to separate lines instead of LF, and (3) prevent
-        # formatting of special characters. See `main git-status` for more
-        # details.
-        ['git', 'status', '--porcelain', '-z'],
-        universal_newlines=True
-    )
+    # Arguments --porcelain and -z are needed to make the output
+    # parsing-friendly. They (1) cause paths to be shown relatively from
+    # the repository's root (thus disregarding user's preferences), (2) use
+    # the null byte to separate lines instead of LF, and (3) prevent
+    # formatting of special characters. See `main git-status` for more
+    # details.
+    cmd = ['git', 'status', '--porcelain', '-z']
+    if show_ignored:
+        cmd.append('--ignored=' + show_ignored)
+    return subprocess.check_output(cmd, universal_newlines=True)
 
 
 def edit_index(index):
@@ -256,10 +259,10 @@ def reflect_index_change(orig_entry, new_entry):
             perform_git_action('checkout', orig_entry.file, ignore_stderr=True)
         elif orig_entry.status in ['D', 'M']:
             perform_git_action('checkout', orig_entry.file)
-        elif orig_entry.status == '?':
+        elif orig_entry.status in ['?', '!']:
             remove(orig_entry.file)
     elif new_entry.status == 'A':
-        perform_git_action('add', new_entry.file)
+        perform_git_action(['add', '-f'], new_entry.file)
     elif new_entry.status in ['D', 'M']:
         perform_git_action('reset', new_entry.file)
     elif new_entry.status == '?':
@@ -379,13 +382,21 @@ def parse_args(argv):
         action='version',
         version='%(prog)s {}'.format(__version__)
     )
-    parser.parse_args(argv)
+    parser.add_argument(
+        '--ignored',
+        nargs='?',
+        dest='ignored',
+        const='traditional',
+        choices=('traditional', 'no', 'matching'),
+        help='Show ignored files as well.'
+    )
+    return parser.parse_args(argv)
 
 
 def main(argv):
-    parse_args(argv[1:])
+    args = parse_args(argv[1:])
 
-    orig_index = current_index()
+    orig_index = current_index(show_ignored=args.ignored)
     if not orig_index:
         # There is nothing in the index, so do not bother the user with an
         # empty editor.

@@ -67,14 +67,19 @@ can stage or unstage files from the index simply by changing their status:
   add FILE`.
 * To stop tracking of a file, change its status to `?`. This runs `git rm
   --cached FILE`.
-* To delete an untracked file, remove the line with the file. This deletes the
-  file by using the operating system's file-deletion facilities.
+* To add an ignored file, change its status from `!` to `A`. This runs `git add
+  -f FILE`.
+* To delete an untracked or ignored file, remove the line with the file. This
+  deletes the file by using the operating system's file-deletion facilities.
 * To revert changes done to a file since the last commit, remove the line with
   the file. This runs `git checkout FILE` (if the file is staged, it first runs
   `git reset FILE`).
 
 The status is case-insensitive, e.g. both `A` and `a` stage the given file
 (lower-case letters are easier to type).
+
+As with `git status`, ignored files aren't being shown by default,
+instead the flag `--ignored` has to be set.
 
 Selecting an Editor
 -------------------
@@ -132,6 +137,7 @@ Limitations
   * `D`: Deleted file (not staged).
   * `M`: Modified file (not staged).
   * `?`: Untracked file.
+  * `!`: Ignored file.
 
 * Working with files having merge conflicts (status `U`,
   [#5](https://github.com/s3rvac/git-edit-index/issues/5)), renamed files
