@@ -184,7 +184,7 @@ def git_status(show_ignored=None):
     # formatting of special characters. See `main git-status` for more
     # details.
     cmd = ['git', 'status', '--porcelain', '-z']
-    if show_ignored:
+    if show_ignored is not None:
         cmd.append('--ignored=' + show_ignored)
     return subprocess.check_output(cmd, universal_newlines=True)
 
