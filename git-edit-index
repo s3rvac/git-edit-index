@@ -388,7 +388,7 @@ def parse_args(argv):
         dest='ignored',
         const='traditional',
         choices=('traditional', 'no', 'matching'),
-        help='Show ignored files as well.'
+        help='show ignored files as well'
     )
     return parser.parse_args(argv)
 
