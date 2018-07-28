@@ -11,7 +11,7 @@ when you perform an interactive rebase.
 
 ![Screencast](resources/screencast.gif "git-edit-index in action")
 
-For example, lets assume you have the following three modified files (`git
+For example, let's assume you have the following three modified files (`git
 status --short`):
 
     M path/to/file1

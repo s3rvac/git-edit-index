@@ -34,7 +34,7 @@ This command represents a faster alternative to ``git add -i`` or ``git gui``.
 It allows you to stage or unstage files from the index in an editor, just like
 when you perform an interactive rebase.
 
-For example, lets assume you have the following three modified files (``git
+For example, let's assume you have the following three modified files (``git
 status --short``):
 
 .. code-block:: text
