@@ -13,7 +13,7 @@ install:
   - pip install mock
   - pip install nose
 script:
-  - nosetests tests --with-coverage --cover-package=git_edit_index --cover-erase
-  - flake8 --ignore=E501 git-edit-index tests/git_edit_index_tests.py setup.py
+  - make tests-coverage
+  - make lint
 after_success:
   - coveralls
