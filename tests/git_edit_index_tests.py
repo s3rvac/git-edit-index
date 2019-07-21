@@ -318,10 +318,7 @@ class EditIndexTests(unittest.TestCase, WithPatching):
         self.patch('git_edit_index.tempfile', self.tempfile)
 
         self.open = mock.MagicMock()
-        # We need to create the mock in this case as 'open' is not available in
-        # the 'git_edit_index' module in e.g. Python 3.4 (it gets loaded from
-        # the 'builtins' module).
-        self.patch('git_edit_index.open', self.open, create=True)
+        self.patch('git_edit_index.open', self.open)
 
         self.editor_cmd = mock.Mock()
         self.patch('git_edit_index.editor_cmd', self.editor_cmd)

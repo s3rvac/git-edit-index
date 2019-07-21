@@ -31,7 +31,7 @@ delete files (`rm`).
 Requirements
 ------------
 
-The script requires Python 2.7 or Python >= 3.4. Both CPython and PyPy
+The script requires Python 2.7 or Python >= 3.5. Both CPython and PyPy
 implementations are supported.
 
 Installation
