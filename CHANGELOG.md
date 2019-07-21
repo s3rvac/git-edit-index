@@ -13,7 +13,7 @@ dev
   ([#9](https://github.com/s3rvac/git-edit-index/pull/9)). To show ignored
   files, you need to run `git edit-index` with the `--ignored` parameter.
 * DEL: Dropped official support for Python 3.2, 3.3, and 3.4 as [they are
-  EOL](https://devguide.python.org/#branchstatus)).
+  EOL](https://devguide.python.org/#branchstatus).
 
 0.5.2 (2018-04-08)
 ------------------
