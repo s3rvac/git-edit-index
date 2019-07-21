@@ -4,6 +4,11 @@ Changelog
 dev
 ---
 
+* -
+
+0.6 (2019-07-21)
+----------------
+
 * FEA: Added support for staging ignored files
   ([#9](https://github.com/s3rvac/git-edit-index/pull/9)). To show ignored
   files, you need to run `git edit-index` with the `--ignored` parameter.
