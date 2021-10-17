@@ -9,3 +9,6 @@ exclude_lines =
 
     # Import errors.
     except ImportError:
+
+[run]
+relative_files = True
