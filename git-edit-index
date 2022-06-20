@@ -287,13 +287,12 @@ def full_path_to(file):
 
 
 def remove(file):
-    """Removes the given file or directory from the filesytem."""
+    """Removes the given file, symlink, or directory from the filesytem."""
     file = full_path_to(file)
-    # Directories have to be removed differently than files.
-    if os.path.isdir(file):
-        shutil.rmtree(file)
-    else:
+    if os.path.islink(file) or os.path.isfile(file):
         os.remove(file)
+    else:
+        shutil.rmtree(file)
 
 
 def perform_git_action(action, file, ignore_stdout=True, ignore_stderr=False):
