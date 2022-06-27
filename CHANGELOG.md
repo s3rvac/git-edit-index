@@ -4,7 +4,7 @@ Changelog
 dev
 ---
 
-* DEL: Dropped official support for Python 3.5 as [it is
+* DEL: Dropped official support for Python 3.5 and 3.6 as [they are
   EOL](https://devguide.python.org/#branchstatus).
 
 0.6 (2019-07-21)
