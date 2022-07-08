@@ -6,9 +6,6 @@ __pycache__
 /.coverage
 /coverage
 
-# Tox
-/.tox
-
 # Build and distribution
 /build
 /dist
