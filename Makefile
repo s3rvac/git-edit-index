@@ -21,15 +21,13 @@ clean:
 	@rm -rf .coverage coverage
 
 lint:
-	@flake8 --ignore=E501 git-edit-index tests/git_edit_index_tests.py setup.py
+	@flake8 --ignore=E501 git-edit-index tests/test_git_edit_index.py setup.py
 
 tests:
-	@nosetests tests
+	@pytest tests
 
 tests-coverage:
-	@nosetests tests \
-		--with-coverage \
-		--cover-package git_edit_index \
-		--cover-erase \
-		--cover-html \
-		--cover-html-dir coverage
+	@pytest tests \
+		--cov=git_edit_index \
+		--cov-report=term \
+		--cov-report=html:coverage/html
