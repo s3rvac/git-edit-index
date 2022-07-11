@@ -4,6 +4,9 @@ Changelog
 dev
 ---
 
+0.7 (2022-07-11)
+----------------
+
 * FEA: Added support for deleting symlinks
   ([087acf7](https://github.com/s3rvac/git-edit-index/commit/087acf75fc169a8c54e71befb124546261d6a723)).
 * DEL: Dropped official support for Python 3.5 and 3.6 as [they are
