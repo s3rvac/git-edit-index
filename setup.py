@@ -80,6 +80,7 @@ more information.
         'Topic :: Software Development :: Version Control',
     ],
     keywords='git editor index staging unstaging',
+    py_modules=[],
     scripts=[
         'git-edit-index'
     ]
