@@ -147,6 +147,18 @@ Limitations
   [#8](https://github.com/s3rvac/git-edit-index/issues/8)) is currently not
   supported.
 
+Development
+-----------
+
+To run tests, install [pytest](https://docs.pytest.org/) and run
+```
+make tests
+```
+To perform linting checks, install [flake8](https://flake8.pycqa.org/) and run
+```
+make lint
+```
+
 License
 -------
 
