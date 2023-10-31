@@ -60,7 +60,7 @@ See the `project's homepage <https://github.com/s3rvac/git-edit-index>`_ for
 more information.
     """.strip(),
     author='Petr Zemek',
-    author_email='s3rvac@gmail.com',
+    author_email='s3rvac@petrzemek.net',
     url='https://github.com/s3rvac/git-edit-index',
     license=read_file('LICENSE'),
     classifiers=[

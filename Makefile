@@ -1,6 +1,6 @@
 #
 # Project:   git-edit-index
-# Copyright: (c) 2015 by Petr Zemek <s3rvac@gmail.com> and contributors
+# Copyright: (c) 2015 by Petr Zemek <s3rvac@petrzemek.net> and contributors
 # License:   MIT, see the LICENSE file for more details
 #
 # A GNU Makefile for the project.

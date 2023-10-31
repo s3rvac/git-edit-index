@@ -162,7 +162,7 @@ make lint
 License
 -------
 
-Copyright (c) 2015 Petr Zemek (s3rvac@gmail.com) and contributors.
+Copyright (c) 2015 Petr Zemek (s3rvac@petrzemek.net) and contributors.
 
 Distributed under the MIT license. See the
 [`LICENSE`](https://github.com/s3rvac/git-edit-index/blob/master/LICENSE) file
