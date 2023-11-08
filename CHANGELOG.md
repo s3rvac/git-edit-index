@@ -4,6 +4,9 @@ Changelog
 dev
 ---
 
+* DEL: Dropped official support for Python 3.7 as [it is
+  EOL](https://devguide.python.org/versions/).
+
 0.7 (2022-07-11)
 ----------------
 
